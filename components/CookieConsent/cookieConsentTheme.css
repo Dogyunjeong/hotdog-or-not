@@ -27,12 +27,27 @@
   --cc-btn-secondary-hover-border-color: var(--border-strong);
 
   --cc-separator-border-color: var(--border);
-  --cc-toggle-readonly-bg: var(--border-strong);
+  --cc-toggle-on-bg: var(--primary);
+  --cc-toggle-on-knob-bg: var(--on-primary);
+  --cc-toggle-off-bg: var(--foreground-muted);
+  --cc-toggle-off-knob-bg: var(--surface);
+  --cc-toggle-enabled-icon-color: var(--primary);
+  --cc-toggle-disabled-icon-color: var(--foreground-muted);
+  --cc-toggle-readonly-bg: var(--foreground-muted);
   --cc-toggle-readonly-knob-bg: var(--surface);
+  --cc-toggle-readonly-knob-icon-color: var(--foreground-muted);
   --cc-overlay-bg: var(--overlay-scrim);
 
+  --cc-section-category-border: var(--border);
   --cc-cookie-category-block-bg: var(--surface-muted);
   --cc-cookie-category-block-border: var(--border);
+  --cc-cookie-category-block-hover-bg: var(--border);
+  --cc-cookie-category-block-hover-border: var(--border-strong);
+  --cc-cookie-category-expanded-block-bg: transparent;
+  --cc-cookie-category-expanded-block-hover-bg: var(--border);
+
+  --cc-webkit-scrollbar-bg: var(--border-strong);
+  --cc-webkit-scrollbar-hover-bg: var(--foreground-muted);
 
   --cc-footer-bg: var(--surface-muted);
   --cc-footer-color: var(--foreground-muted);
@@ -49,4 +64,38 @@
 #cc-main a:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+/*
+ * `equalWeightButtons` keeps Accept and Reject the same size and prominence in the layout;
+ * Reject still reads as the secondary choice, like our own secondary buttons.
+ */
+#cc-main .cm__btn[data-role='necessary'],
+#cc-main .pm__btn[data-role='necessary'] {
+  background: var(--cc-btn-secondary-bg);
+  border-color: var(--cc-btn-secondary-border-color);
+  color: var(--cc-btn-secondary-color);
+}
+
+#cc-main .cm__btn[data-role='necessary']:hover,
+#cc-main .pm__btn[data-role='necessary']:hover {
+  background: var(--cc-btn-secondary-hover-bg);
+  border-color: var(--cc-btn-secondary-hover-border-color);
+  color: var(--cc-btn-secondary-hover-color);
+}
+
+/* 44px touch targets in Cookie settings: the close button (library: 40px) … */
+#cc-main .pm__close-btn {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+/*
+ * … and the category toggles (library: 50×23px). The toggle sits in a <label>, so an invisible
+ * pseudo-element widens what can be tapped without changing how it looks.
+ */
+#cc-main .section__toggle-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: calc((2.75rem - 23px) / -2) 0;
 }

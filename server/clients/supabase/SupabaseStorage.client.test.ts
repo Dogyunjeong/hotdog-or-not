@@ -75,20 +75,6 @@ describe('SupabaseStorageClient', () => {
     expect(downloadedBuffer.equals(fileBody)).toBe(true);
   });
 
-  it('moves a file across buckets', async () => {
-    const { supabaseStorageClient, hasFile } = createStorageWithTempFile();
-
-    await supabaseStorageClient.moveFile({
-      sourceBucketId: STORAGE_BUCKET.HOTDOG_IMAGE_UPLOADS,
-      sourceFilePath: filePath,
-      destinationBucketId: STORAGE_BUCKET.HOTDOG_IMAGES,
-      destinationFilePath: filePath,
-    });
-
-    expect(hasFile({ bucketId: STORAGE_BUCKET.HOTDOG_IMAGE_UPLOADS, filePath })).toBe(false);
-    expect(hasFile({ bucketId: STORAGE_BUCKET.HOTDOG_IMAGES, filePath })).toBe(true);
-  });
-
   it('signs read URLs keyed by path, leaving out missing objects', async () => {
     const { supabaseStorageClient } = createStorageWithTempFile();
 
@@ -99,5 +85,30 @@ describe('SupabaseStorageClient', () => {
     });
 
     expect([...signedReadUrlMap.keys()]).toEqual([filePath]);
+  });
+  it('uploads, lists a folder, and deletes files idempotently', async () => {
+    const { supabaseStorageClient, hasFile } = createFakeSupabaseStorageClient();
+    const folderPath = 'storage-folder-id';
+
+    await supabaseStorageClient.uploadFile({
+      bucketId: STORAGE_BUCKET.HOTDOG_IMAGES,
+      filePath: `${folderPath}/a.png`,
+      fileBody: fileBody,
+      contentType: 'image/png',
+    });
+    const folderFilePathList = await supabaseStorageClient.listFolderFilePathList({
+      bucketId: STORAGE_BUCKET.HOTDOG_IMAGES,
+      folderPath,
+    });
+    const removedFileCount = await supabaseStorageClient.deleteFileList({
+      bucketId: STORAGE_BUCKET.HOTDOG_IMAGES,
+      filePathList: [...folderFilePathList, `${folderPath}/already-gone.png`],
+    });
+
+    expect(folderFilePathList).toEqual([`${folderPath}/a.png`]);
+    expect(removedFileCount).toBe(1);
+    expect(
+      hasFile({ bucketId: STORAGE_BUCKET.HOTDOG_IMAGES, filePath: `${folderPath}/a.png` }),
+    ).toBe(false);
   });
 });

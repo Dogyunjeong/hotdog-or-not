@@ -3,15 +3,19 @@
 import { HotdogTypes } from '@/shared/types';
 import { useState } from 'react';
 
+import type { SavedHotdogClassificationRecord } from '@/hooks/useHotdogClassificationHistory';
+
 import HotdogClassificationHistoryEmpty from './HotdogClassificationHistoryEmpty';
 import HotdogClassificationHistoryItem from './HotdogClassificationHistoryItem';
 
 interface HotdogClassificationHistoryListProps {
-  hotdogClassificationList: HotdogTypes.HotdogClassificationRecord[];
+  hotdogClassificationList: SavedHotdogClassificationRecord[];
+  onHotdogClassificationSelect: (hotdogClassificationId: string) => void;
 }
 
 const HotdogClassificationHistoryList = ({
   hotdogClassificationList,
+  onHotdogClassificationSelect,
 }: HotdogClassificationHistoryListProps) => {
   // Records present when the list first rendered came from the server; later ones are new.
   const [initialHotdogClassificationIdSet] = useState(
@@ -27,7 +31,7 @@ const HotdogClassificationHistoryList = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <ul className="flex flex-col gap-3">
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
         {hotdogClassificationList.map((hotdogClassificationRecord) => (
           <HotdogClassificationHistoryItem
             key={hotdogClassificationRecord.id}
@@ -35,6 +39,7 @@ const HotdogClassificationHistoryList = ({
             isNewHotdogClassification={
               !initialHotdogClassificationIdSet.has(hotdogClassificationRecord.id)
             }
+            onHotdogClassificationSelect={onHotdogClassificationSelect}
           />
         ))}
       </ul>

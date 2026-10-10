@@ -2,7 +2,7 @@
 
 import type { HotdogTypes } from '@/shared/types';
 import { getHotdogImageValidationErrorMessage } from '@/shared/utils/hotdog';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { hotdogClassificationController } from '@/controllers/apiControllers';
 
@@ -31,7 +31,8 @@ interface HotdogClassificationAttempt {
 
 /**
  * pick → validate → upload session → PUT to storage → classify.
- * Only the latest attempt may update state, so a newer pick drops an older, slower result.
+ * Each run gets its own AbortController: a newer pick, or unmounting (e.g. the workspace
+ * remounts after an erase), cancels the run's requests, and an aborted run sets no state.
  * A superseded attempt whose classify request already reached the server may still be
  * saved there; it isn't prepended now and shows up on the next history load (accepted).
  */
@@ -42,18 +43,27 @@ export const useHotdogClassification = ({
 }) => {
   const [hotdogClassificationState, setHotdogClassificationState] =
     useState<HotdogClassificationState>({ status: 'idle' });
-  const latestAttemptIdRef = useRef(0);
+  const latestRunAbortControllerRef = useRef<AbortController>(undefined);
   const latestAttemptRef = useRef<HotdogClassificationAttempt>(undefined);
 
-  const startNewAttemptId = () => {
-    latestAttemptIdRef.current += 1;
-    return latestAttemptIdRef.current;
+  const abortLatestRun = () => {
+    latestRunAbortControllerRef.current?.abort();
   };
+
+  const startNewRun = () => {
+    abortLatestRun();
+    latestRunAbortControllerRef.current = new AbortController();
+    return latestRunAbortControllerRef.current.signal;
+  };
+
+  useEffect(() => {
+    return abortLatestRun;
+  }, []);
 
   /** Uploads the photo once per attempt; a retry after a successful upload reuses its path. */
   const uploadAttemptImage = async (
     attempt: HotdogClassificationAttempt,
-    isLatestAttempt: () => boolean,
+    signal: AbortSignal,
   ): Promise<string | undefined> => {
     if (attempt.uploadedTempImagePath) {
       return attempt.uploadedTempImagePath;
@@ -63,14 +73,17 @@ export const useHotdogClassification = ({
     const hotdogImageUploadSession = await runHotdogClassificationStep(
       'creatingUploadSession',
       () =>
-        hotdogClassificationController.createImageUploadSession({
-          // Validated before the attempt started.
-          mediaType: attempt.imageFile.type as HotdogTypes.HotdogImageMediaType,
-          byteSize: attempt.imageFile.size,
-        }),
+        hotdogClassificationController.createImageUploadSession(
+          {
+            // Validated before the attempt started.
+            mediaType: attempt.imageFile.type as HotdogTypes.HotdogImageMediaType,
+            byteSize: attempt.imageFile.size,
+          },
+          { signal },
+        ),
     );
 
-    if (!isLatestAttempt()) {
+    if (signal.aborted) {
       return undefined;
     }
 
@@ -78,6 +91,7 @@ export const useHotdogClassification = ({
       hotdogClassificationController.uploadImage({
         hotdogImageUploadSession,
         imageFile: attempt.imageFile,
+        signal,
       }),
     );
     attempt.uploadedTempImagePath = hotdogImageUploadSession.tempImagePath;
@@ -85,28 +99,27 @@ export const useHotdogClassification = ({
   };
 
   const runAttempt = async (attempt: HotdogClassificationAttempt) => {
-    const attemptId = startNewAttemptId();
-    const isLatestAttempt = () => attemptId === latestAttemptIdRef.current;
+    const signal = startNewRun();
 
     try {
-      const tempImagePath = await uploadAttemptImage(attempt, isLatestAttempt);
+      const tempImagePath = await uploadAttemptImage(attempt, signal);
 
-      if (!tempImagePath || !isLatestAttempt()) {
+      if (!tempImagePath || signal.aborted) {
         return;
       }
 
       setHotdogClassificationState({ status: 'classifying' });
       const hotdogClassificationRecord = await runHotdogClassificationStep('classifying', () =>
-        hotdogClassificationController.classifyUploadedImage({ tempImagePath }),
+        hotdogClassificationController.classifyUploadedImage({ tempImagePath }, { signal }),
       );
 
-      if (!isLatestAttempt()) {
+      if (signal.aborted) {
         return;
       }
       setHotdogClassificationState({ status: 'classified', hotdogClassificationRecord });
       onHotdogClassified(hotdogClassificationRecord);
     } catch (error) {
-      if (!isLatestAttempt()) {
+      if (signal.aborted) {
         return;
       }
       setHotdogClassificationState(
@@ -123,7 +136,7 @@ export const useHotdogClassification = ({
     });
 
     if (validationErrorMessage) {
-      startNewAttemptId();
+      abortLatestRun();
       latestAttemptRef.current = undefined;
       setHotdogClassificationState({
         status: 'failed',

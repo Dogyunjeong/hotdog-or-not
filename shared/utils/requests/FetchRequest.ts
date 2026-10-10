@@ -3,13 +3,19 @@ import type { SharedTypes } from '@/shared/types';
 import ExpectedServerError, { type HttpStatusCode } from '../error/ExpectedServerError';
 import NetworkError from '../error/NetworkError';
 
-export interface IRequest {
-  setBaseUrl: (baseUrl: string) => void;
-  get: <T>(url: string) => Promise<{ data: T }>;
-  post: <T>(url: string, body?: unknown) => Promise<{ data: T }>;
+/** Per-request options; `signal` cancels the request (it then rejects like a network error). */
+export interface RequestOptions {
+  signal?: AbortSignal;
 }
 
-type HttpMethod = 'GET' | 'POST';
+export interface IRequest {
+  setBaseUrl: (baseUrl: string) => void;
+  get: <T>(url: string, requestOptions?: RequestOptions) => Promise<{ data: T }>;
+  post: <T>(url: string, body?: unknown, requestOptions?: RequestOptions) => Promise<{ data: T }>;
+  delete: <T>(url: string, requestOptions?: RequestOptions) => Promise<{ data: T }>;
+}
+
+type HttpMethod = 'GET' | 'POST' | 'DELETE';
 
 /**
  * Isomorphic JSON client built on `fetch` (browser, Node, Vercel functions).
@@ -33,12 +39,14 @@ class FetchRequest implements IRequest {
     method: HttpMethod,
     url: string,
     body?: unknown,
+    requestOptions: RequestOptions = {},
   ): Promise<{ data: T }> => {
     const hasBody = body !== undefined;
     const response = await fetch(this._buildUrl(url), {
       method,
       headers: hasBody ? { 'Content-Type': 'application/json' } : {},
       body: hasBody ? JSON.stringify(body) : undefined,
+      signal: requestOptions.signal,
     }).catch((fetchError: unknown) => {
       throw new NetworkError(fetchError);
     });
@@ -59,12 +67,16 @@ class FetchRequest implements IRequest {
     this._baseUrl = baseUrl;
   };
 
-  public get = <T>(url: string) => {
-    return this._makeRequest<T>('GET', url);
+  public get = <T>(url: string, requestOptions?: RequestOptions) => {
+    return this._makeRequest<T>('GET', url, undefined, requestOptions);
   };
 
-  public post = <T>(url: string, body?: unknown) => {
-    return this._makeRequest<T>('POST', url, body);
+  public post = <T>(url: string, body?: unknown, requestOptions?: RequestOptions) => {
+    return this._makeRequest<T>('POST', url, body, requestOptions);
+  };
+
+  public delete = <T>(url: string, requestOptions?: RequestOptions) => {
+    return this._makeRequest<T>('DELETE', url, undefined, requestOptions);
   };
 }
 

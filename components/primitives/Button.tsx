@@ -1,8 +1,9 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { ComponentProps } from 'react';
 
 import { type ButtonSize, type ButtonVariant, getButtonClassName } from './buttonClassName';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+/** `ComponentProps<'button'>` includes `ref` (a regular prop in React 19). */
+interface ButtonProps extends ComponentProps<'button'> {
   variant: ButtonVariant;
   size?: ButtonSize;
 }

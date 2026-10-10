@@ -1,20 +1,17 @@
 'use client';
 
-import HotdogClassificationHistory from '@/components/HotdogClassificationHistory/HotdogClassificationHistory';
-import HotdogClassifier from '@/components/HotdogClassifier/HotdogClassifier';
-import { useHotdogClassificationHistory } from '@/hooks/useHotdogClassificationHistory';
+import { useVisitorPrivacy } from '@/hooks/useVisitorPrivacy';
 
-/** Connects the classifier to the history so a new verdict shows up without a refetch. */
+import HotdogClassificationWorkspaceLayout from './HotdogClassificationWorkspaceLayout';
+
+/**
+ * Remounts the whole workspace (classifier back to idle, history reloaded) after the
+ * visitor's data is erased. The privacy provider then moves focus to the page heading.
+ */
 const HotdogClassificationWorkspace = () => {
-  const { historyState, prependHotdogClassification, reloadHistory } =
-    useHotdogClassificationHistory();
+  const { dataResetCount } = useVisitorPrivacy();
 
-  return (
-    <div className="flex flex-col gap-8">
-      <HotdogClassifier onHotdogClassified={prependHotdogClassification} />
-      <HotdogClassificationHistory historyState={historyState} onRetry={reloadHistory} />
-    </div>
-  );
+  return <HotdogClassificationWorkspaceLayout key={dataResetCount} />;
 };
 
 export default HotdogClassificationWorkspace;

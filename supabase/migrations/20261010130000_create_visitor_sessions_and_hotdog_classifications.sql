@@ -1,4 +1,4 @@
--- Anonymous visitor identity, carried by the httpOnly `seamflow_visitor_session` cookie.
+-- Anonymous visitor identity, carried by the httpOnly `hotdog_or_not_visitor_session` cookie.
 -- `id` is the bearer secret and never leaves the cookie. Storage paths use
 -- `storage_folder_id` instead, because signed URLs and temp paths are visible to the browser.
 create table public.visitor_sessions (

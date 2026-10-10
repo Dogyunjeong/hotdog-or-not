@@ -28,11 +28,17 @@ const getHotdogImagePickerAppearance = (
 
 interface HotdogImagePickerProps {
   status: HotdogClassificationStateStatus;
+  isDisabled: boolean;
   inputRef: Ref<HTMLInputElement>;
   onImagePick: (imageFile: File) => void;
 }
 
-const HotdogImagePicker = ({ status, inputRef, onImagePick }: HotdogImagePickerProps) => {
+const HotdogImagePicker = ({
+  status,
+  isDisabled,
+  inputRef,
+  onImagePick,
+}: HotdogImagePickerProps) => {
   const { label, variant } = getHotdogImagePickerAppearance(status);
 
   return (
@@ -41,6 +47,7 @@ const HotdogImagePicker = ({ status, inputRef, onImagePick }: HotdogImagePickerP
       variant={variant}
       onFilePick={onImagePick}
       inputRef={inputRef}
+      isDisabled={isDisabled}
       className="w-full"
     >
       {label}

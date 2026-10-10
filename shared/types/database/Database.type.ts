@@ -23,30 +23,76 @@ export type Database = {
   };
   public: {
     Tables: {
+      data_deletion_requests: {
+        Row: {
+          completed_at: string | null;
+          deleted_classification_count: number;
+          deleted_file_count: number;
+          failure_reason: string | null;
+          id: string;
+          requested_at: string;
+          scope: string;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          completed_at?: string | null;
+          deleted_classification_count?: number;
+          deleted_file_count?: number;
+          failure_reason?: string | null;
+          id?: string;
+          requested_at?: string;
+          scope: string;
+          status?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          deleted_classification_count?: number;
+          deleted_file_count?: number;
+          failure_reason?: string | null;
+          id?: string;
+          requested_at?: string;
+          scope?: string;
+          status?: string;
+        };
+        Relationships: [];
+      };
       hotdog_classifications: {
         Row: {
           created_at: string;
+          details: Json | null;
+          details_schema_version: number | null;
           id: string;
-          image_path: string;
+          image_path: string | null;
           is_hotdog: boolean;
+          original_image_path: string;
           reason: string;
+          thumbnail_image_path: string | null;
           visitor_session_id: string;
         };
         ComputedFields: never;
         Insert: {
           created_at?: string;
+          details?: Json | null;
+          details_schema_version?: number | null;
           id?: string;
-          image_path: string;
+          image_path?: string | null;
           is_hotdog: boolean;
+          original_image_path: string;
           reason: string;
+          thumbnail_image_path?: string | null;
           visitor_session_id: string;
         };
         Update: {
           created_at?: string;
+          details?: Json | null;
+          details_schema_version?: number | null;
           id?: string;
-          image_path?: string;
+          image_path?: string | null;
           is_hotdog?: boolean;
+          original_image_path?: string;
           reason?: string;
+          thumbnail_image_path?: string | null;
           visitor_session_id?: string;
         };
         Relationships: [
@@ -86,7 +132,12 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      list_stale_hotdog_image_uploads: {
+        Args: { max_rows: number; older_than: string };
+        Returns: {
+          name: string;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

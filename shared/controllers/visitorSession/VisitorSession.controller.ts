@@ -10,7 +10,7 @@ class VisitorSessionController {
     this._httpRequest = httpRequest || new FetchRequest({ baseUrl: apiUrl });
   }
 
-  /** Also starts the session (sets the cookie) on a first visit. */
+  /** Starts the session (sets the cookie) when history consent exists; guests get `isHistoryEnabled: false`. */
   public getCurrentVisitorSession =
     async (): Promise<VisitorSessionTypes.CurrentVisitorSessionResponse> => {
       const response =
@@ -19,6 +19,11 @@ class VisitorSessionController {
         );
       return response.data;
     };
+
+  /** Erases everything saved for this visitor (results, images, session) and clears the cookie. */
+  public eraseVisitorData = async (): Promise<void> => {
+    await this._httpRequest.delete('/visitor-sessions/current');
+  };
 
   public completeOnboarding = async (): Promise<void> => {
     await this._httpRequest.post('/visitor-sessions/current/onboarding-completion');

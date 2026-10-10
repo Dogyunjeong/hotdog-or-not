@@ -12,14 +12,18 @@ const DEFAULT_UPLOAD_ERROR_MESSAGE =
 export const uploadFileToSignedUrl = async ({
   signedUploadUrl,
   file,
+  signal,
 }: {
   signedUploadUrl: string;
   file: Blob;
+  /** Cancels the upload (it then rejects with a `NetworkError`). */
+  signal?: AbortSignal;
 }): Promise<void> => {
   const response = await fetch(signedUploadUrl, {
     method: 'PUT',
     headers: { 'Content-Type': file.type },
     body: file,
+    signal,
   }).catch((fetchError: unknown) => {
     throw new NetworkError(fetchError);
   });

@@ -7,7 +7,7 @@ import { isVisitorSessionId } from '@/server/utils/visitorSessionCookie';
 
 type VisitorSessionRow = Database['public']['Tables']['visitor_sessions']['Row'];
 
-interface VisitorSession {
+export interface VisitorSession {
   /** Bearer secret from the cookie — never expose it (paths, URLs, responses). */
   id: string;
   /** Non-secret id that scopes the visitor's storage paths. */
@@ -30,7 +30,7 @@ class VisitorSessionService {
     };
   };
 
-  private _findVisitorSession = async (visitorSessionId: string) => {
+  private _findVisitorSessionRow = async (visitorSessionId: string) => {
     const { data: visitorSessionRow, error } = await this._supabaseClient
       .from('visitor_sessions')
       .select('*')
@@ -74,10 +74,28 @@ class VisitorSessionService {
       return this._toVisitorSession(await this._createVisitorSession(crypto.randomUUID()));
     }
 
-    const existingVisitorSessionRow = await this._findVisitorSession(visitorSessionId);
+    const existingVisitorSessionRow = await this._findVisitorSessionRow(visitorSessionId);
 
     if (!existingVisitorSessionRow) {
       return this._toVisitorSession(await this._createVisitorSession(visitorSessionId));
+    }
+    return this._toVisitorSession(existingVisitorSessionRow);
+  };
+
+  /** The cookie's existing session, or `undefined` — never creates one (used to erase data). */
+  public findVisitorSession = async ({
+    visitorSessionId,
+  }: {
+    visitorSessionId?: string;
+  }): Promise<VisitorSession | undefined> => {
+    if (!isVisitorSessionId(visitorSessionId)) {
+      return undefined;
+    }
+
+    const existingVisitorSessionRow = await this._findVisitorSessionRow(visitorSessionId);
+
+    if (!existingVisitorSessionRow) {
+      return undefined;
     }
     return this._toVisitorSession(existingVisitorSessionRow);
   };

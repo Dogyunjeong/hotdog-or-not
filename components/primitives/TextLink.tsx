@@ -1,15 +1,7 @@
 import Link, { type LinkProps } from 'next/link';
 import type { ReactNode } from 'react';
 
-import { FOCUS_RING_CLASS_NAME } from './focusRing';
-
-type TextLinkVariant = 'inline' | 'standalone';
-
-const TEXT_LINK_VARIANT_CLASS_NAME: Record<TextLinkVariant, string> = {
-  inline: '',
-  // Links that stand on their own get a 44px touch target.
-  standalone: 'inline-flex min-h-11 items-center',
-};
+import { getTextLinkClassName, type TextLinkVariant } from './textLinkClassName';
 
 interface TextLinkProps extends LinkProps<string> {
   variant?: TextLinkVariant;
@@ -24,10 +16,7 @@ const TextLink = ({
   ...linkProps
 }: TextLinkProps) => {
   return (
-    <Link
-      className={`rounded-sm text-foreground underline underline-offset-4 hover:text-foreground-muted ${TEXT_LINK_VARIANT_CLASS_NAME[variant]} ${FOCUS_RING_CLASS_NAME} ${className}`}
-      {...linkProps}
-    >
+    <Link className={`${getTextLinkClassName(variant)} ${className}`} {...linkProps}>
       {children}
     </Link>
   );

@@ -30,6 +30,28 @@ export const createFakeSupabaseStorageClient = () => {
   };
 
   const from = (bucketId: string) => ({
+    upload: async (filePath: string, body: Buffer, { contentType }: { contentType: string }) => {
+      getBucketFiles(bucketId).set(filePath, { body, contentType });
+      return { data: { path: filePath }, error: null };
+    },
+    // Like Supabase: answers with the objects that were actually removed.
+    remove: async (filePathList: string[]) => {
+      const removedFilePathList = filePathList.filter((filePath) =>
+        getBucketFiles(bucketId).delete(filePath),
+      );
+      return { data: removedFilePathList.map((filePath) => ({ name: filePath })), error: null };
+    },
+    list: async (folderPath: string, { limit, offset }: { limit: number; offset: number }) => {
+      const fileNameList = [...getBucketFiles(bucketId).keys()]
+        .filter((filePath) => filePath.startsWith(`${folderPath}/`))
+        .map((filePath) => filePath.slice(folderPath.length + 1))
+        .filter((fileName) => !fileName.includes('/'))
+        .slice(offset, offset + limit);
+      return {
+        data: fileNameList.map((fileName) => ({ id: `${folderPath}/${fileName}`, name: fileName })),
+        error: null,
+      };
+    },
     createSignedUploadUrl: async (filePath: string) => ({
       data: {
         signedUrl: `https://storage.test/upload/sign/${bucketId}/${filePath}?token=test`,
@@ -59,20 +81,6 @@ export const createFakeSupabaseStorageClient = () => {
         data: new Blob([new Uint8Array(storedFile.body)], { type: storedFile.contentType }),
         error: null,
       };
-    },
-    move: async (
-      sourceFilePath: string,
-      destinationFilePath: string,
-      { destinationBucket }: { destinationBucket: string },
-    ) => {
-      const storedFile = getBucketFiles(bucketId).get(sourceFilePath);
-
-      if (!storedFile) {
-        return { data: null, error: NOT_FOUND_ERROR };
-      }
-      getBucketFiles(bucketId).delete(sourceFilePath);
-      getBucketFiles(destinationBucket).set(destinationFilePath, storedFile);
-      return { data: { message: 'Successfully moved' }, error: null };
     },
     createSignedUrls: async (filePathList: string[], expiresInSeconds: number) => ({
       data: filePathList.map((filePath) => {

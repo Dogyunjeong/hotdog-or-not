@@ -6,7 +6,17 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type OpenAI from 'openai';
 import { z } from 'zod';
 
-import VisitorSessionService from '@/server/api/visitorSession/VisitorSession.service';
+import {
+  resolveRequestVisitorSession,
+  withRequestVisitorSessionCookie,
+} from '@/server/api/visitorSession/resolveRequestVisitorSession';
+import VisitorSessionService, {
+  type VisitorSession,
+} from '@/server/api/visitorSession/VisitorSession.service';
+import {
+  getReverseGeocodingClient,
+  type ReverseGeocodingClient,
+} from '@/server/clients/geocoding/ReverseGeocoding.client';
 import { getOpenAIClient } from '@/server/clients/openai/getOpenAIClient';
 import { getSupabaseClient } from '@/server/clients/supabase/getSupabaseClient';
 import {
@@ -14,20 +24,22 @@ import {
   type SupabaseStorageClient,
 } from '@/server/clients/supabase/SupabaseStorage.client';
 import { handleError } from '@/server/utils/handleError';
-import {
-  readVisitorSessionIdFromRequest,
-  withVisitorSessionCookie,
-} from '@/server/utils/visitorSessionCookie';
 import HotdogClassificationService from './HotdogClassification.service';
 
 const classifyUploadedHotdogImageRequestSchema = z.object({
   tempImagePath: z.string(),
 });
 
+const GUEST_HOTDOG_CLASSIFICATION_LIST_RESPONSE: HotdogTypes.HotdogClassificationListResponse = {
+  isHistoryEnabled: false,
+  hotdogClassificationList: [],
+};
+
 class HotdogClassificationHandler {
   private _openAIClient?: OpenAI;
   private _supabaseClient?: SupabaseClient<Database>;
   private _supabaseStorageClient?: SupabaseStorageClient;
+  private _reverseGeocodingClient?: ReverseGeocodingClient;
   private _visitorSessionService?: VisitorSessionService;
 
   /** Dependencies are injectable for tests; production resolves them lazily from env. */
@@ -35,16 +47,19 @@ class HotdogClassificationHandler {
     openAIClient,
     supabaseClient,
     supabaseStorageClient,
+    reverseGeocodingClient,
     visitorSessionService,
   }: {
     openAIClient?: OpenAI;
     supabaseClient?: SupabaseClient<Database>;
     supabaseStorageClient?: SupabaseStorageClient;
+    reverseGeocodingClient?: ReverseGeocodingClient;
     visitorSessionService?: VisitorSessionService;
   } = {}) {
     this._openAIClient = openAIClient;
     this._supabaseClient = supabaseClient;
     this._supabaseStorageClient = supabaseStorageClient;
+    this._reverseGeocodingClient = reverseGeocodingClient;
     this._visitorSessionService = visitorSessionService;
   }
 
@@ -54,6 +69,7 @@ class HotdogClassificationHandler {
       openAIClient: this._openAIClient || getOpenAIClient(),
       supabaseClient,
       supabaseStorageClient: this._supabaseStorageClient || getSupabaseStorageClient(),
+      reverseGeocodingClient: this._reverseGeocodingClient || getReverseGeocodingClient(),
     });
     const visitorSessionService =
       this._visitorSessionService || new VisitorSessionService({ supabaseClient });
@@ -72,20 +88,44 @@ class HotdogClassificationHandler {
     return parsedRequest.data;
   };
 
+  /** Visitors with history get a saved record; guests get the same result, unsaved (`id: null`). */
+  private _classifyUploadedImageForVisitor = ({
+    hotdogClassificationService,
+    visitorSession,
+    tempImagePath,
+  }: {
+    hotdogClassificationService: HotdogClassificationService;
+    visitorSession?: VisitorSession;
+    tempImagePath: string;
+  }) => {
+    if (!visitorSession) {
+      return hotdogClassificationService.classifyGuestUploadedImage({ tempImagePath });
+    }
+    return hotdogClassificationService.classifyVisitorUploadedImage({
+      visitorSessionId: visitorSession.id,
+      storageFolderId: visitorSession.storageFolderId,
+      tempImagePath,
+    });
+  };
+
   public classifyUploadedImage = async (request: Request): Promise<Response> => {
     try {
       const { tempImagePath } = await this._parseClassifyUploadedHotdogImageRequest(request);
       const { hotdogClassificationService, visitorSessionService } = this._getDependencies();
-      const visitorSession = await visitorSessionService.resolveVisitorSession({
-        visitorSessionId: readVisitorSessionIdFromRequest(request),
+      const visitorSession = await resolveRequestVisitorSession({
+        request,
+        visitorSessionService,
       });
 
-      const hotdogClassificationRecord = await hotdogClassificationService.classifyUploadedImage({
-        visitorSessionId: visitorSession.id,
-        storageFolderId: visitorSession.storageFolderId,
+      const hotdogClassificationRecord = await this._classifyUploadedImageForVisitor({
+        hotdogClassificationService,
+        visitorSession,
         tempImagePath,
       });
-      return withVisitorSessionCookie(Response.json(hotdogClassificationRecord), visitorSession.id);
+      return withRequestVisitorSessionCookie(
+        Response.json(hotdogClassificationRecord),
+        visitorSession,
+      );
     } catch (error) {
       return handleError({
         error,
@@ -94,21 +134,28 @@ class HotdogClassificationHandler {
     }
   };
 
+  /** Guests have no history: an empty list without touching the database. */
   public listHotdogClassifications = async (request: Request): Promise<Response> => {
     try {
       const { hotdogClassificationService, visitorSessionService } = this._getDependencies();
-      const visitorSession = await visitorSessionService.resolveVisitorSession({
-        visitorSessionId: readVisitorSessionIdFromRequest(request),
+      const visitorSession = await resolveRequestVisitorSession({
+        request,
+        visitorSessionService,
       });
 
+      if (!visitorSession) {
+        return Response.json(GUEST_HOTDOG_CLASSIFICATION_LIST_RESPONSE);
+      }
+
       const hotdogClassificationListResponse: HotdogTypes.HotdogClassificationListResponse = {
+        isHistoryEnabled: true,
         hotdogClassificationList: await hotdogClassificationService.listHotdogClassifications({
           visitorSessionId: visitorSession.id,
         }),
       };
-      return withVisitorSessionCookie(
+      return withRequestVisitorSessionCookie(
         Response.json(hotdogClassificationListResponse),
-        visitorSession.id,
+        visitorSession,
       );
     } catch (error) {
       return handleError({

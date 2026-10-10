@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import SiteFooter from '@/components/SiteFooter/SiteFooter';
 import VisitorNoticeSequence from '@/components/VisitorNoticeSequence/VisitorNoticeSequence';
+import VisitorPrivacyProvider from '@/components/VisitorPrivacy/VisitorPrivacyProvider';
 
 import './globals.css';
 
@@ -25,9 +26,11 @@ const RootLayout = ({ children }: LayoutProps<'/'>) => {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-canvas font-sans text-foreground">
-        {children}
-        <SiteFooter />
-        <VisitorNoticeSequence />
+        <VisitorPrivacyProvider>
+          {children}
+          <SiteFooter />
+          <VisitorNoticeSequence />
+        </VisitorPrivacyProvider>
       </body>
     </html>
   );

@@ -28,7 +28,8 @@ export const createFakeHotdogClassificationSupabaseClient = ({
 
     const isDuplicateImagePath = hotdogClassificationRowList.some(
       (hotdogClassificationRow) =>
-        hotdogClassificationRow.image_path === hotdogClassificationInsert.image_path,
+        hotdogClassificationRow.original_image_path ===
+        hotdogClassificationInsert.original_image_path,
     );
 
     if (isDuplicateImagePath) {

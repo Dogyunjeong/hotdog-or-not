@@ -5,19 +5,40 @@ import { type SyntheticEvent, useEffect, useRef } from 'react';
 import Button from '@/components/primitives/Button';
 import OnboardingStep from './OnboardingStep';
 
-const ONBOARDING_STEP_LIST = [
+interface OnboardingStepContent {
+  title: string;
+  description: string;
+}
+
+const SHARED_ONBOARDING_STEP_LIST: OnboardingStepContent[] = [
   { title: 'Upload a photo', description: 'Pick any picture from your device.' },
   {
-    title: 'Get a verdict',
-    description: "We'll tell you if it's a hotdog, plus a quick reason why.",
-  },
-  {
-    title: 'See your history',
-    description: 'Your recent checks are saved in this browser so you can look back anytime.',
+    title: 'Get the full scoop',
+    description:
+      "Hotdog or not, plus a taste score, a nutrition guess and where it's probably from.",
   },
 ];
 
+const HISTORY_ENABLED_ONBOARDING_STEP: OnboardingStepContent = {
+  title: 'See your history',
+  description: 'Your checks are saved in this browser so you can look back anytime.',
+};
+
+const GUEST_ONBOARDING_STEP: OnboardingStepContent = {
+  title: 'History is off',
+  description: 'Nothing gets saved. You can turn history on anytime from Cookie settings.',
+};
+
+const getOnboardingStepList = (isHistoryEnabled: boolean) => {
+  if (isHistoryEnabled) {
+    return [...SHARED_ONBOARDING_STEP_LIST, HISTORY_ENABLED_ONBOARDING_STEP];
+  }
+  return [...SHARED_ONBOARDING_STEP_LIST, GUEST_ONBOARDING_STEP];
+};
+
 interface OnboardingDialogProps {
+  /** The last step explains history, or that nothing is saved for a guest. */
+  isHistoryEnabled: boolean;
   onComplete: () => void;
 }
 
@@ -25,7 +46,7 @@ interface OnboardingDialogProps {
  * Native modal `<dialog>`: focus trap, inert background, and top layer come for free.
  * Backdrop clicks do not close it; Esc or a browser-initiated close counts as "Got it".
  */
-const OnboardingDialog = ({ onComplete }: OnboardingDialogProps) => {
+const OnboardingDialog = ({ isHistoryEnabled, onComplete }: OnboardingDialogProps) => {
   const onboardingDialogRef = useRef<HTMLDialogElement>(null);
   // Esc can fire both `cancel` and `close`; complete (and POST) only once.
   const isOnboardingCompletedRef = useRef(false);
@@ -69,7 +90,7 @@ const OnboardingDialog = ({ onComplete }: OnboardingDialogProps) => {
           <p className="text-foreground-muted">It only takes a second. Here&apos;s how it works:</p>
         </div>
         <ol className="flex flex-col gap-4">
-          {ONBOARDING_STEP_LIST.map((onboardingStep, onboardingStepIndex) => (
+          {getOnboardingStepList(isHistoryEnabled).map((onboardingStep, onboardingStepIndex) => (
             <OnboardingStep
               key={onboardingStep.title}
               stepNumber={onboardingStepIndex + 1}

@@ -10,6 +10,7 @@ interface FilePickerButtonProps {
   onFilePick: (file: File) => void;
   /** Lets callers restore keyboard focus to the picker (e.g. after a retry button unmounts). */
   inputRef?: Ref<HTMLInputElement>;
+  isDisabled?: boolean;
   className?: string;
   children: ReactNode;
 }
@@ -20,6 +21,7 @@ const FilePickerButton = ({
   variant,
   onFilePick,
   inputRef,
+  isDisabled = false,
   className = '',
   children,
 }: FilePickerButtonProps) => {
@@ -37,7 +39,7 @@ const FilePickerButton = ({
   return (
     <label
       // Ring only for keyboard focus: clicking also focuses the hidden input.
-      className={`cursor-pointer has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus-ring ${getButtonShapeClassName({ variant })} ${className}`}
+      className={`${isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus-ring ${getButtonShapeClassName({ variant })} ${className}`}
     >
       {children}
       <input
@@ -45,6 +47,7 @@ const FilePickerButton = ({
         type="file"
         accept={accept}
         onChange={handleFileInputChange}
+        disabled={isDisabled}
         className="sr-only"
       />
     </label>

@@ -6,31 +6,40 @@ import { VISITOR_SESSION_COOKIE_NAME } from '@/server/utils/visitorSessionCookie
 import { HotdogClassificationController } from '@/shared/controllers';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { HISTORY_CONSENT_COOKIE, NECESSARY_ONLY_CONSENT_COOKIE } from '../../helpers/consentCookie';
 import { createFakeHotdogClassificationSupabaseClient } from '../../helpers/createFakeHotdogClassificationSupabaseClient';
 import { createFakeOpenAIClient } from '../../helpers/createFakeOpenAIClient';
+import { createFakeReverseGeocodingClient } from '../../helpers/createFakeReverseGeocodingClient';
 import { createFakeSupabaseStorageClient } from '../../helpers/createFakeSupabaseStorageClient';
+import { createTestHotdogImageBuffer } from '../../helpers/createTestHotdogImageBuffer';
+import { HOTDOG_MODEL_OUTPUT } from '../../helpers/hotdogClassificationModelOutput';
 
 const TEST_BASE_URL = 'http://localhost';
 const SIGNED_UPLOAD_URL_PATTERN = /^https:\/\/storage\.test\/upload\/sign\/([^/]+)\/(.+)\?token=/;
 const STUB_STORAGE_FOLDER_ID = '7c9d1e2f-3a4b-4c5d-8e6f-a1b2c3d4e5f6';
-const hotdogClassification = { isHotdog: true, reason: 'Classic ballpark dog.' };
 
 /** Keeps the cookie the way a browser would: a new session id per visitor. */
 const createStubVisitorSessionService = () => {
-  return {
-    resolveVisitorSession: async ({ visitorSessionId }: { visitorSessionId?: string }) => ({
+  const resolveVisitorSession = vi.fn(
+    async ({ visitorSessionId }: { visitorSessionId?: string }) => ({
       id: visitorSessionId ?? crypto.randomUUID(),
       storageFolderId: STUB_STORAGE_FOLDER_ID,
       isOnboardingCompleted: true,
     }),
-  } as unknown as VisitorSessionService;
+  );
+  return {
+    visitorSessionService: { resolveVisitorSession } as unknown as VisitorSessionService,
+    resolveVisitorSession,
+  };
 };
 
 const createHotdogApi = () => {
-  const { openAIClient } = createFakeOpenAIClient({ outputParsed: hotdogClassification });
-  const { supabaseClient } = createFakeHotdogClassificationSupabaseClient();
+  const { openAIClient } = createFakeOpenAIClient({ outputParsed: HOTDOG_MODEL_OUTPUT });
+  const { supabaseClient, hotdogClassificationRowList } =
+    createFakeHotdogClassificationSupabaseClient();
   const { supabaseStorageClient, putFile, hasFile } = createFakeSupabaseStorageClient();
-  const visitorSessionService = createStubVisitorSessionService();
+  const { reverseGeocodingClient } = createFakeReverseGeocodingClient();
+  const { visitorSessionService, resolveVisitorSession } = createStubVisitorSessionService();
   return {
     hotdogImageUploadHandler: new HotdogImageUploadHandler({
       supabaseStorageClient,
@@ -40,8 +49,11 @@ const createHotdogApi = () => {
       openAIClient,
       supabaseClient,
       supabaseStorageClient,
+      reverseGeocodingClient,
       visitorSessionService,
     }),
+    hotdogClassificationRowList,
+    resolveVisitorSession,
     putFile,
     hasFile,
   };
@@ -51,9 +63,13 @@ type HotdogApi = ReturnType<typeof createHotdogApi>;
 
 /**
  * Routes controller requests into the handlers the same way `app/api/**​/route.ts` does,
- * PUTs to signed upload URLs into the fake storage, and carries the visitor cookie.
+ * PUTs to signed upload URLs into the fake storage, and carries the browser's cookies:
+ * the consent cookie (when given) and the visitor session cookie once it is set.
  */
-const stubFetchWithHotdogApi = (hotdogApi: HotdogApi) => {
+const stubFetchWithHotdogApi = (
+  hotdogApi: HotdogApi,
+  { consentCookieHeader }: { consentCookieHeader?: string } = {},
+) => {
   const visitorCookieJar: { cookieHeader?: string } = {};
 
   const routeApiRequest = (request: Request) => {
@@ -89,8 +105,12 @@ const stubFetchWithHotdogApi = (hotdogApi: HotdogApi) => {
       return putIntoSignedUploadUrl(request);
     }
 
-    if (visitorCookieJar.cookieHeader) {
-      request.headers.set('cookie', visitorCookieJar.cookieHeader);
+    const cookieHeader = [consentCookieHeader, visitorCookieJar.cookieHeader]
+      .filter(Boolean)
+      .join('; ');
+
+    if (cookieHeader) {
+      request.headers.set('cookie', cookieHeader);
     }
     const response = await routeApiRequest(request);
     const setCookieHeader = response.headers.get('set-cookie');
@@ -104,8 +124,9 @@ const stubFetchWithHotdogApi = (hotdogApi: HotdogApi) => {
   return { getVisitorCookieHeader: () => visitorCookieJar.cookieHeader };
 };
 
-const createImageFile = ({ mediaType = 'image/jpeg', byteSize = 16 } = {}) => {
-  return new Blob([new Uint8Array(byteSize)], { type: mediaType });
+const createImageFile = async () => {
+  const imageBuffer = await createTestHotdogImageBuffer();
+  return new Blob([new Uint8Array(imageBuffer)], { type: 'image/jpeg' });
 };
 
 describe('hotdog classification API', () => {
@@ -131,11 +152,13 @@ describe('hotdog classification API', () => {
     vi.restoreAllMocks();
   });
 
-  it('uploads, classifies, and lists an image for the same visitor', async () => {
+  it('uploads, classifies, and lists an image for a visitor with history', async () => {
     const hotdogApi = createHotdogApi();
-    const { getVisitorCookieHeader } = stubFetchWithHotdogApi(hotdogApi);
+    const { getVisitorCookieHeader } = stubFetchWithHotdogApi(hotdogApi, {
+      consentCookieHeader: HISTORY_CONSENT_COOKIE,
+    });
 
-    const { tempImagePath } = await uploadImage(createImageFile());
+    const { tempImagePath } = await uploadImage(await createImageFile());
     expect(getVisitorCookieHeader()).toMatch(new RegExp(`^${VISITOR_SESSION_COOKIE_NAME}=`));
     // The path is scoped by the non-secret folder id, never by the session id.
     expect(tempImagePath.startsWith(`${STUB_STORAGE_FOLDER_ID}/`)).toBe(true);
@@ -144,15 +167,60 @@ describe('hotdog classification API', () => {
       tempImagePath,
     });
     expect(hotdogClassificationRecord).toMatchObject({
-      ...hotdogClassification,
-      imageUrl: expect.stringContaining(tempImagePath),
+      id: expect.any(String),
+      isHotdog: true,
+      reason: HOTDOG_MODEL_OUTPUT.reason,
+      originalImageUrl: expect.stringContaining(tempImagePath.replace(/\.jpg$/, '.webp')),
+      thumbnailImageUrl: expect.stringContaining('.thumbnail.webp'),
+      details: { kind: 'hotdog', origin: { source: 'styleGuess' } },
     });
     expect(
-      hotdogApi.hasFile({ bucketId: STORAGE_BUCKET.HOTDOG_IMAGES, filePath: tempImagePath }),
+      hotdogApi.hasFile({
+        bucketId: STORAGE_BUCKET.HOTDOG_IMAGES,
+        filePath: tempImagePath.replace(/\.jpg$/, '.webp'),
+      }),
     ).toBe(true);
+    expect(
+      hotdogApi.hasFile({ bucketId: STORAGE_BUCKET.HOTDOG_IMAGE_UPLOADS, filePath: tempImagePath }),
+    ).toBe(false);
 
     await expect(hotdogClassificationController.listClassifications()).resolves.toEqual({
+      isHistoryEnabled: true,
       hotdogClassificationList: [hotdogClassificationRecord],
     });
+  });
+
+  it('classifies for a guest without a session, saving nothing', async () => {
+    const hotdogApi = createHotdogApi();
+    const { getVisitorCookieHeader } = stubFetchWithHotdogApi(hotdogApi, {
+      consentCookieHeader: NECESSARY_ONLY_CONSENT_COOKIE,
+    });
+
+    const { tempImagePath } = await uploadImage(await createImageFile());
+    expect(tempImagePath.startsWith('guest/')).toBe(true);
+
+    await expect(
+      hotdogClassificationController.classifyUploadedImage({ tempImagePath }),
+    ).resolves.toMatchObject({
+      id: null,
+      isHotdog: true,
+      originalImageUrl: '',
+      thumbnailImageUrl: '',
+      details: { kind: 'hotdog' },
+    });
+    expect(
+      hotdogApi.hasFile({ bucketId: STORAGE_BUCKET.HOTDOG_IMAGE_UPLOADS, filePath: tempImagePath }),
+    ).toBe(false);
+    expect(
+      hotdogApi.hasFile({ bucketId: STORAGE_BUCKET.HOTDOG_IMAGES, filePath: tempImagePath }),
+    ).toBe(false);
+    expect(hotdogApi.hotdogClassificationRowList).toEqual([]);
+
+    await expect(hotdogClassificationController.listClassifications()).resolves.toEqual({
+      isHistoryEnabled: false,
+      hotdogClassificationList: [],
+    });
+    expect(getVisitorCookieHeader()).toBeUndefined();
+    expect(hotdogApi.resolveVisitorSession).not.toHaveBeenCalled();
   });
 });

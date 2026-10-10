@@ -1,10 +1,37 @@
 import Spinner from '@/components/primitives/Spinner';
+import { useHotdogClassificationProgressMessage } from '@/hooks/useHotdogClassificationProgressMessage';
 
 type HotdogClassificationProgressStep = 'uploading' | 'classifying';
 
-const HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE: Record<HotdogClassificationProgressStep, string> = {
-  uploading: 'Uploading your photo…',
-  classifying: 'Checking for hotdog…',
+const STILL_THINKING_MESSAGE = 'Still thinking — detailed checks can take a few extra seconds.';
+
+const HotdogImageUploadingProgress = () => {
+  return (
+    <p className="flex items-center justify-center gap-2 text-foreground-muted">
+      <Spinner size="sm" />
+      Uploading your photo…
+    </p>
+  );
+};
+
+/**
+ * Lives inside the classifier's polite status region: screen readers hear the first message
+ * and the "still thinking" note once, never every rotation.
+ */
+const HotdogImageCheckingProgress = () => {
+  const { announcedProgressMessage, rotatingProgressMessage, isStillThinking } =
+    useHotdogClassificationProgressMessage();
+
+  return (
+    <div className="flex flex-col items-center gap-1 text-center text-foreground-muted">
+      <p className="flex items-center justify-center gap-2">
+        <Spinner size="sm" />
+        <span aria-hidden>{rotatingProgressMessage}</span>
+        <span className="sr-only">{announcedProgressMessage}</span>
+      </p>
+      {isStillThinking && <p className="text-sm">{STILL_THINKING_MESSAGE}</p>}
+    </div>
+  );
 };
 
 interface HotdogClassificationProgressProps {
@@ -12,12 +39,12 @@ interface HotdogClassificationProgressProps {
 }
 
 const HotdogClassificationProgress = ({ step }: HotdogClassificationProgressProps) => {
-  return (
-    <p className="flex items-center justify-center gap-2 text-foreground-muted">
-      <Spinner size="sm" />
-      {HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE[step]}
-    </p>
-  );
+  switch (step) {
+    case 'uploading':
+      return <HotdogImageUploadingProgress />;
+    case 'classifying':
+      return <HotdogImageCheckingProgress />;
+  }
 };
 
 export default HotdogClassificationProgress;

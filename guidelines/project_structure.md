@@ -9,7 +9,7 @@
 
 ### **CRITICAL RULE: API Environment Variables**
 
-- **Types are defined in `shared/types` (`SharedTypes.SeamflowEnvironment`)** — add new vars there first
+- **Types are defined in `shared/types` (`SharedTypes.HotdogOrNotEnvironment`)** — add new vars there first
 - **Read env only through `getEnvironmentVariable()` in `server/configs/app.config.ts`** — never `process.env` directly
 - Resolve env lazily inside client getters (`getOpenAIClient`, `getSupabaseClient`) so `next build` needs no secrets
 - Local: `.env.local` (see `.env.example`). Vercel: project env vars per environment.
@@ -66,9 +66,10 @@ Domain and concern focused. Focus on modularizing.
 
 ### Visitor session
 
-- Anonymous visitor identity: `visitor_sessions` row + httpOnly cookie `seamflow_visitor_session` (`server/utils/visitorSessionCookie.ts`)
-- Every session-scoped handler: `VisitorSessionService.resolveVisitorSession({ visitorSessionId: readVisitorSessionIdFromRequest(request) })` → do work → `withVisitorSessionCookie(response, visitorSession.id)`
-- Visitor-owned storage paths start with `{visitorSessionId}/`; always check ownership server-side
+- Anonymous visitor identity: `visitor_sessions` row + httpOnly cookie `hotdog_or_not_visitor_session` (`server/utils/visitorSessionCookie.ts`), only with the `history` cookie consent (`server/utils/historyConsent.ts`); otherwise the visitor is a guest and nothing is saved
+- Every session-scoped handler: `resolveRequestVisitorSession({ request, visitorSessionService })` (undefined = guest) → do work → `withRequestVisitorSessionCookie(response, visitorSession)`
+- The session id is the cookie's bearer secret: never put it in storage paths, URLs, responses or logs. Storage paths use the non-secret `storage_folder_id`: `{storageFolderId}/…`; guests use `guest/{uuid}/…`. Always check ownership server-side.
+- The DB stores storage KEYS only (`original_image_path`, `thumbnail_image_path`); signed read URLs are created right before responding by one resolver (`server/api/hotdog/hotdogImageUrl.ts`)
 
 ## Frontend (`app/`, `components/`, `hooks/`, `controllers/`)
 

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Seamflow — "Hotdog or Not Hotdog": a visitor uploads an image (signed URL → Supabase Storage), an OpenAI vision model says whether it's a hotdog, and the result joins their history. One Next.js 16 (App Router) project with API route handlers, Supabase (Postgres + Storage), deployed to Vercel.
+Hotdog or Not Hotdog — "Hotdog or Not Hotdog": a visitor uploads an image (signed URL → Supabase Storage), an OpenAI vision model says whether it's a hotdog, and the result joins their history. One Next.js 16 (App Router) project with API route handlers, Supabase (Postgres + Storage), deployed to Vercel.
 
 ## Critical Rules
 
@@ -76,7 +76,7 @@ Request flow: `component → hook → shared/controllers → app/api/**/route.ts
 
 ## Environment
 
-- API env: `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (type: `SharedTypes.SeamflowEnvironment`), read only through `getEnvironmentVariable()` in `server/configs/app.config.ts`
+- API env: `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (type: `SharedTypes.HotdogOrNotEnvironment`), read only through `getEnvironmentVariable()` in `server/configs/app.config.ts`
 - Local: `.env.local` (loaded by Next.js)
 - Vercel: project env vars per environment (Production / Preview)
 
@@ -86,7 +86,7 @@ Vercel:
 
 1. Import the repo (framework: Next.js, auto-detected; root directory is the repo root)
 2. Node.js version: 24.x (pinned by `engines.node` in `package.json`); functions run in `dub1` (Dublin, `vercel.json`) next to the database
-3. Env vars: `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ENABLE_EXPERIMENTAL_COREPACK=1` (so Vercel uses Yarn 4 from `packageManager`)
+3. Env vars: `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET` (daily data-retention cron in `vercel.json`), `ENABLE_EXPERIMENTAL_COREPACK=1` (so Vercel uses Yarn 4 from `packageManager`)
 
 Supabase (deploy before the app — migrations create the `hotdog-images` bucket):
 

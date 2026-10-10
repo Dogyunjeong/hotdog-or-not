@@ -1,60 +1,33 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
-import CookieConsentNotice from '@/components/CookieConsent/CookieConsentNotice';
 import OnboardingDialog from '@/components/Onboarding/OnboardingDialog';
-import { type VisitorOnboardingStatus, useVisitorOnboarding } from '@/hooks/useVisitorOnboarding';
-
-type VisitorNoticeStep = 'checking' | 'onboarding' | 'cookieNotice' | 'done';
+import { useVisitorOnboarding } from '@/hooks/useVisitorOnboarding';
 
 const ONBOARDING_PATHNAME = '/';
 
-const getVisitorNoticeStep = ({
-  visitorOnboardingStatus,
-  isCookieNoticeDone,
-}: {
-  visitorOnboardingStatus: VisitorOnboardingStatus;
-  isCookieNoticeDone: boolean;
-}): VisitorNoticeStep => {
-  switch (visitorOnboardingStatus) {
-    case 'checking':
-      return 'checking';
-    case 'required':
-      return 'onboarding';
-    case 'notRequired':
-      return isCookieNoticeDone ? 'done' : 'cookieNotice';
-  }
-};
-
 /**
- * The single owner of first-visit notices: onboarding (modal) first, then the cookie
- * banner, so the two are never on screen together.
+ * First-visit notices, one at a time: the cookie banner first (rendered by the consent library
+ * via `VisitorPrivacyProvider` — we must know whether we may save anything), then onboarding.
+ * Onboarding waits until the banner is answered, so the two are never on screen together.
  */
 const VisitorNoticeSequence = () => {
   const pathname = usePathname();
-  // Decided once on the landing route: client navigation must not bring onboarding back
-  // on top of a cookie banner that is already showing.
+  // Decided once on the landing route: client navigation must not bring onboarding back.
   const [isOnboardingCheckNeeded] = useState(() => pathname === ONBOARDING_PATHNAME);
-  const { visitorOnboardingStatus, completeOnboarding } = useVisitorOnboarding({
+  const { visitorOnboardingStatus, isHistoryEnabled, completeOnboarding } = useVisitorOnboarding({
     isOnboardingCheckNeeded,
   });
-  const [isCookieNoticeDone, setIsCookieNoticeDone] = useState(false);
 
-  const markCookieNoticeDone = useCallback(() => {
-    setIsCookieNoticeDone(true);
-  }, []);
-
-  const visitorNoticeStep = getVisitorNoticeStep({ visitorOnboardingStatus, isCookieNoticeDone });
-
-  switch (visitorNoticeStep) {
-    case 'onboarding':
-      return <OnboardingDialog onComplete={completeOnboarding} />;
-    case 'cookieNotice':
-      return <CookieConsentNotice onDone={markCookieNoticeDone} />;
+  switch (visitorOnboardingStatus) {
+    case 'required':
+      return (
+        <OnboardingDialog isHistoryEnabled={isHistoryEnabled} onComplete={completeOnboarding} />
+      );
     case 'checking':
-    case 'done':
+    case 'notRequired':
       return null;
   }
 };

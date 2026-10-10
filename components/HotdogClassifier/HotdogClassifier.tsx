@@ -5,7 +5,9 @@ import { useRef } from 'react';
 
 import { useHotdogClassification } from '@/hooks/useHotdogClassification';
 import { useImagePreviewUrl } from '@/hooks/useImagePreviewUrl';
+import { useVisitorPrivacy } from '@/hooks/useVisitorPrivacy';
 
+import HotdogClassificationResultDetails from './HotdogClassificationResultDetails';
 import HotdogClassificationStatus from './HotdogClassificationStatus';
 import HotdogImagePicker from './HotdogImagePicker';
 import HotdogImagePreview from './HotdogImagePreview';
@@ -19,6 +21,8 @@ const HotdogClassifier = ({ onHotdogClassified }: HotdogClassifierProps) => {
   const { hotdogClassificationState, classifyImage, retryHotdogClassification } =
     useHotdogClassification({ onHotdogClassified });
   const imagePickerInputRef = useRef<HTMLInputElement>(null);
+  // While the session is being created, an upload could land half-guest, half-session.
+  const isEnablingHistory = useVisitorPrivacy().historyConsentStatus === 'enabling';
   const isHotdogClassificationBusy =
     hotdogClassificationState.status === 'uploading' ||
     hotdogClassificationState.status === 'classifying';
@@ -47,8 +51,14 @@ const HotdogClassifier = ({ onHotdogClassified }: HotdogClassifierProps) => {
         hotdogClassificationState={hotdogClassificationState}
         onRetry={handleRetry}
       />
+      {hotdogClassificationState.status === 'classified' && (
+        <HotdogClassificationResultDetails
+          hotdogClassificationRecord={hotdogClassificationState.hotdogClassificationRecord}
+        />
+      )}
       <HotdogImagePicker
         status={hotdogClassificationState.status}
+        isDisabled={isEnablingHistory}
         inputRef={imagePickerInputRef}
         onImagePick={handleImagePick}
       />

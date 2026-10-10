@@ -3,6 +3,10 @@ import 'server-only';
 import { ExpectedServerError } from '@/shared/utils/error';
 import { z } from 'zod';
 
+import {
+  resolveRequestVisitorSession,
+  withRequestVisitorSessionCookie,
+} from '@/server/api/visitorSession/resolveRequestVisitorSession';
 import VisitorSessionService from '@/server/api/visitorSession/VisitorSession.service';
 import { getSupabaseClient } from '@/server/clients/supabase/getSupabaseClient';
 import {
@@ -10,10 +14,6 @@ import {
   type SupabaseStorageClient,
 } from '@/server/clients/supabase/SupabaseStorage.client';
 import { handleError } from '@/server/utils/handleError';
-import {
-  readVisitorSessionIdFromRequest,
-  withVisitorSessionCookie,
-} from '@/server/utils/visitorSessionCookie';
 import HotdogImageUploadService from './HotdogImageUpload.service';
 
 const createHotdogImageUploadRequestSchema = z.object({
@@ -57,20 +57,25 @@ class HotdogImageUploadHandler {
     return parsedRequest.data;
   };
 
+  /** Guests may upload too; their photo goes to a random guest folder in the temp bucket. */
   public createImageUploadSession = async (request: Request): Promise<Response> => {
     try {
       const { mediaType, byteSize } = await this._parseCreateHotdogImageUploadRequest(request);
       const { hotdogImageUploadService, visitorSessionService } = this._getDependencies();
-      const visitorSession = await visitorSessionService.resolveVisitorSession({
-        visitorSessionId: readVisitorSessionIdFromRequest(request),
+      const visitorSession = await resolveRequestVisitorSession({
+        request,
+        visitorSessionService,
       });
 
       const hotdogImageUploadSession = await hotdogImageUploadService.createImageUploadSession({
-        storageFolderId: visitorSession.storageFolderId,
+        visitorStorageFolderId: visitorSession?.storageFolderId,
         mediaType,
         byteSize,
       });
-      return withVisitorSessionCookie(Response.json(hotdogImageUploadSession), visitorSession.id);
+      return withRequestVisitorSessionCookie(
+        Response.json(hotdogImageUploadSession),
+        visitorSession,
+      );
     } catch (error) {
       return handleError({
         error,

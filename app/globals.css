@@ -31,6 +31,9 @@
   --danger: #b91c1c;
   --danger-soft: #fef2f2;
   --danger-border: #fecaca;
+  --danger-solid: #b91c1c;
+  --danger-solid-hover: #991b1b;
+  --on-danger: #ffffff;
   --overlay-scrim: rgb(9 9 11 / 0.55);
   --on-overlay: #ffffff;
 }
@@ -57,6 +60,8 @@
     --danger: #fca5a5;
     --danger-soft: #2a0a0a;
     --danger-border: #7f1d1d;
+    --danger-solid: #dc2626;
+    --danger-solid-hover: #b91c1c;
     --overlay-scrim: rgb(0 0 0 / 0.7);
   }
 }
@@ -88,6 +93,9 @@
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-danger-border: var(--danger-border);
+  --color-danger-solid: var(--danger-solid);
+  --color-danger-solid-hover: var(--danger-solid-hover);
+  --color-on-danger: var(--on-danger);
   --color-overlay-scrim: var(--overlay-scrim);
   --color-on-overlay: var(--on-overlay);
 }
@@ -99,9 +107,13 @@
 
   --shadow-overlay: 0 20px 40px -12px rgb(0 0 0 / 0.35);
 
+  --container-history-panel: 22rem;
+  --container-drawer: 28rem;
+
   --animate-history-item-enter: history-item-enter 200ms ease-out;
   --animate-overlay-enter: overlay-enter 150ms ease-out;
   --animate-status-enter: status-enter 150ms ease-out;
+  --animate-drawer-enter: drawer-enter 200ms ease-out;
 
   @keyframes history-item-enter {
     from {
@@ -122,6 +134,17 @@
     to {
       opacity: 1;
       transform: scale(1);
+    }
+  }
+
+  @keyframes drawer-enter {
+    from {
+      opacity: 0;
+      transform: translateX(2rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
     }
   }
 

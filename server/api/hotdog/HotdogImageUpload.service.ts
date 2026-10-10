@@ -7,7 +7,7 @@ import {
   STORAGE_BUCKET,
   type SupabaseStorageClient,
 } from '@/server/clients/supabase/SupabaseStorage.client';
-import { createHotdogImagePath } from './hotdogImagePath';
+import { createGuestHotdogImagePath, createHotdogImagePath } from './hotdogImagePath';
 
 class HotdogImageUploadService {
   private _supabaseStorageClient: SupabaseStorageClient;
@@ -16,21 +16,35 @@ class HotdogImageUploadService {
     this._supabaseStorageClient = supabaseStorageClient;
   }
 
+  private _createTempImagePath = ({
+    visitorStorageFolderId,
+    mediaType,
+  }: {
+    visitorStorageFolderId?: string;
+    mediaType: HotdogTypes.HotdogImageMediaType;
+  }) => {
+    if (!visitorStorageFolderId) {
+      return createGuestHotdogImagePath({ mediaType });
+    }
+    return createHotdogImagePath({ storageFolderId: visitorStorageFolderId, mediaType });
+  };
+
   /**
    * Validates what the browser says it will upload and hands out a single-use signed URL
    * in the temp bucket. The real file is validated again before it is classified.
+   * `visitorStorageFolderId` is `undefined` for guests: the upload goes to a random guest folder.
    */
   public createImageUploadSession = async ({
-    storageFolderId,
+    visitorStorageFolderId,
     mediaType,
     byteSize,
   }: {
-    storageFolderId: string;
+    visitorStorageFolderId?: string;
     mediaType: string;
     byteSize: number;
   }): Promise<HotdogTypes.HotdogImageUploadSession> => {
-    const tempImagePath = createHotdogImagePath({
-      storageFolderId,
+    const tempImagePath = this._createTempImagePath({
+      visitorStorageFolderId,
       mediaType: getValidatedHotdogImageMediaType({ mediaType, byteSize }),
     });
 

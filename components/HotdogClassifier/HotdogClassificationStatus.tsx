@@ -22,9 +22,12 @@ const HotdogClassificationStatusContent = ({
       return <HotdogClassificationProgress step={hotdogClassificationState.status} />;
     case 'classified':
       return (
-        <HotdogVerdict
-          hotdogClassificationRecord={hotdogClassificationState.hotdogClassificationRecord}
-        />
+        <>
+          <h2 className="sr-only">Your verdict</h2>
+          <HotdogVerdict
+            hotdogClassificationRecord={hotdogClassificationState.hotdogClassificationRecord}
+          />
+        </>
       );
     case 'failed':
       return (

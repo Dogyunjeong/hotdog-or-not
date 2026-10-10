@@ -1,7 +1,7 @@
 -- Temp bucket the browser uploads into via signed upload URLs.
 -- The API validates, classifies, then moves objects to `hotdog-images`.
 -- Limits mirror HOTDOG_IMAGE_MEDIA_TYPE_LIST / HOTDOG_IMAGE_MAX_BYTE_SIZE in shared/types/hotdog.
--- TODO: scheduled cleanup of abandoned objects older than 1 day.
+-- Abandoned objects (> 24h) are deleted by the data-retention cron (/api/cron/data-retention).
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'hotdog-image-uploads',
