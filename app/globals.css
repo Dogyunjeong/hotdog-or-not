@@ -1,0 +1,136 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. Raw values live on :root (light) and are overridden for dark mode;
+ * `@theme inline` maps them to Tailwind utilities (bg-surface, text-foreground, ...).
+ * Components use these utilities only — no raw palette colors.
+ */
+:root {
+  color-scheme: light dark;
+
+  --canvas: #fafafa;
+  --surface: #ffffff;
+  --surface-muted: #f4f4f5;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --foreground: #18181b;
+  --foreground-muted: #52525b;
+  --primary: #18181b;
+  --primary-hover: #3f3f46;
+  --on-primary: #ffffff;
+  --focus-ring: #d97706;
+  --accent-soft: #fef3c7;
+  --accent-soft-foreground: #92400e;
+  --hotdog-yes: #15803d;
+  --hotdog-no: #b91c1c;
+  --on-hotdog: #ffffff;
+  --hotdog-yes-soft: #dcfce7;
+  --hotdog-yes-soft-foreground: #166534;
+  --hotdog-no-soft: #fee2e2;
+  --hotdog-no-soft-foreground: #991b1b;
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+  --danger-border: #fecaca;
+  --overlay-scrim: rgb(9 9 11 / 0.55);
+  --on-overlay: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #09090b;
+    --surface: #18181b;
+    --surface-muted: #27272a;
+    --border: #3f3f46;
+    --border-strong: #52525b;
+    --foreground: #f4f4f5;
+    --foreground-muted: #a1a1aa;
+    --primary: #f4f4f5;
+    --primary-hover: #d4d4d8;
+    --on-primary: #18181b;
+    --focus-ring: #fbbf24;
+    --accent-soft: #451a03;
+    --accent-soft-foreground: #fcd34d;
+    --hotdog-yes-soft: #052e16;
+    --hotdog-yes-soft-foreground: #86efac;
+    --hotdog-no-soft: #450a0a;
+    --hotdog-no-soft-foreground: #fca5a5;
+    --danger: #fca5a5;
+    --danger-soft: #2a0a0a;
+    --danger-border: #7f1d1d;
+    --overlay-scrim: rgb(0 0 0 / 0.7);
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-focus-ring: var(--focus-ring);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-foreground: var(--accent-soft-foreground);
+  --color-hotdog-yes: var(--hotdog-yes);
+  --color-hotdog-no: var(--hotdog-no);
+  --color-on-hotdog: var(--on-hotdog);
+  --color-hotdog-yes-soft: var(--hotdog-yes-soft);
+  --color-hotdog-yes-soft-foreground: var(--hotdog-yes-soft-foreground);
+  --color-hotdog-no-soft: var(--hotdog-no-soft);
+  --color-hotdog-no-soft-foreground: var(--hotdog-no-soft-foreground);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+  --color-overlay-scrim: var(--overlay-scrim);
+  --color-on-overlay: var(--on-overlay);
+}
+
+@theme {
+  --radius-control: 9999px;
+  --radius-card: 1rem;
+  --radius-thumb: 0.75rem;
+
+  --shadow-overlay: 0 20px 40px -12px rgb(0 0 0 / 0.35);
+
+  --animate-history-item-enter: history-item-enter 200ms ease-out;
+  --animate-overlay-enter: overlay-enter 150ms ease-out;
+  --animate-status-enter: status-enter 150ms ease-out;
+
+  @keyframes history-item-enter {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes overlay-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes status-enter {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

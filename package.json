@@ -1,24 +1,19 @@
 {
   "name": "seamflow",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "type": "module",
   "packageManager": "yarn@4.18.1",
   "engines": {
     "node": ">=22.12.0"
   },
-  "workspaces": {
-    "packages": [
-      "packages/*",
-      "apps/*",
-      "frontend/*"
-    ]
-  },
   "scripts": {
-    "dev": "yarn workspace @seamflow/web dev",
-    "build": "yarn workspace @seamflow/web build",
-    "typecheck": "yarn workspaces foreach -A --exclude seamflow run typecheck",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
     "format": "prettier --write .",
@@ -26,13 +21,28 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --local > packages/shared-types/src/database/Database.type.ts",
-    "lint": "yarn workspace @seamflow/web lint"
+    "db:types": "supabase gen types typescript --local > shared/types/database/Database.type.ts && prettier --write shared/types/database/Database.type.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.75.0",
+    "next": "^16.4.0",
+    "openai": "^7.30.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "server-only": "^0.0.1",
+    "vanilla-cookieconsent": "^3.1.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@tailwindcss/turbopack": "^4.1.0",
     "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^16.4.0",
     "prettier": "^3.6.0",
     "supabase": "^2.50.0",
+    "tailwindcss": "^4.1.0",
     "typescript": "^5.9.0",
     "vitest": "^4.0.0"
   },

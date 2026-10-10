@@ -1,0 +1,52 @@
+/*
+ * Maps vanilla-cookieconsent's theme variables to our design tokens (app/globals.css).
+ * The tokens switch with prefers-color-scheme, so dark mode follows without cc--darkmode.
+ */
+#cc-main {
+  --cc-font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --cc-modal-border-radius: var(--radius-card);
+  --cc-btn-border-radius: var(--radius-control);
+
+  --cc-bg: var(--surface);
+  --cc-primary-color: var(--foreground);
+  --cc-secondary-color: var(--foreground-muted);
+  --cc-link-color: var(--foreground);
+
+  --cc-btn-primary-bg: var(--primary);
+  --cc-btn-primary-color: var(--on-primary);
+  --cc-btn-primary-border-color: var(--primary);
+  --cc-btn-primary-hover-bg: var(--primary-hover);
+  --cc-btn-primary-hover-color: var(--on-primary);
+  --cc-btn-primary-hover-border-color: var(--primary-hover);
+
+  --cc-btn-secondary-bg: var(--surface-muted);
+  --cc-btn-secondary-color: var(--foreground);
+  --cc-btn-secondary-border-color: var(--border);
+  --cc-btn-secondary-hover-bg: var(--border);
+  --cc-btn-secondary-hover-color: var(--foreground);
+  --cc-btn-secondary-hover-border-color: var(--border-strong);
+
+  --cc-separator-border-color: var(--border);
+  --cc-toggle-readonly-bg: var(--border-strong);
+  --cc-toggle-readonly-knob-bg: var(--surface);
+  --cc-overlay-bg: var(--overlay-scrim);
+
+  --cc-cookie-category-block-bg: var(--surface-muted);
+  --cc-cookie-category-block-border: var(--border);
+
+  --cc-footer-bg: var(--surface-muted);
+  --cc-footer-color: var(--foreground-muted);
+  --cc-footer-border-color: var(--border);
+}
+
+/* 44px minimum touch targets (the library default is 42px). */
+#cc-main .cm__btn,
+#cc-main .pm__btn {
+  min-height: 2.75rem;
+}
+
+#cc-main button:focus-visible,
+#cc-main a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

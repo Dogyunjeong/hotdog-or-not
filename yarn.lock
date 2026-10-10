@@ -958,63 +958,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@seamflow/api@workspace:^, @seamflow/api@workspace:apps/api":
-  version: 0.0.0-use.local
-  resolution: "@seamflow/api@workspace:apps/api"
-  dependencies:
-    "@seamflow/shared-types": "workspace:^"
-    "@seamflow/shared-utils": "workspace:^"
-    "@supabase/supabase-js": "npm:^2.75.0"
-    openai: "npm:^7.30.1"
-    zod: "npm:^4.0.0"
-  languageName: unknown
-  linkType: soft
-
-"@seamflow/shared-controllers@workspace:^, @seamflow/shared-controllers@workspace:packages/shared-controllers":
-  version: 0.0.0-use.local
-  resolution: "@seamflow/shared-controllers@workspace:packages/shared-controllers"
-  dependencies:
-    "@seamflow/shared-types": "workspace:^"
-    "@seamflow/shared-utils": "workspace:^"
-  languageName: unknown
-  linkType: soft
-
-"@seamflow/shared-types@workspace:^, @seamflow/shared-types@workspace:packages/shared-types":
-  version: 0.0.0-use.local
-  resolution: "@seamflow/shared-types@workspace:packages/shared-types"
-  languageName: unknown
-  linkType: soft
-
-"@seamflow/shared-utils@workspace:^, @seamflow/shared-utils@workspace:packages/shared-utils":
-  version: 0.0.0-use.local
-  resolution: "@seamflow/shared-utils@workspace:packages/shared-utils"
-  dependencies:
-    "@seamflow/shared-types": "workspace:^"
-  languageName: unknown
-  linkType: soft
-
-"@seamflow/web@workspace:frontend/web":
-  version: 0.0.0-use.local
-  resolution: "@seamflow/web@workspace:frontend/web"
-  dependencies:
-    "@seamflow/api": "workspace:^"
-    "@seamflow/shared-controllers": "workspace:^"
-    "@seamflow/shared-types": "workspace:^"
-    "@seamflow/shared-utils": "workspace:^"
-    "@tailwindcss/turbopack": "npm:^4.1.0"
-    "@types/node": "npm:^24.0.0"
-    "@types/react": "npm:^19.2.0"
-    "@types/react-dom": "npm:^19.2.0"
-    eslint: "npm:^9.0.0"
-    eslint-config-next: "npm:^16.4.0"
-    next: "npm:^16.4.0"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    tailwindcss: "npm:^4.1.0"
-    typescript: "npm:^5.9.0"
-  languageName: unknown
-  linkType: soft
-
 "@standard-schema/spec@npm:^1.1.0":
   version: 1.1.0
   resolution: "@standard-schema/spec@npm:1.1.0"
@@ -4656,11 +4599,25 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "seamflow@workspace:."
   dependencies:
+    "@supabase/supabase-js": "npm:^2.75.0"
+    "@tailwindcss/turbopack": "npm:^4.1.0"
     "@types/node": "npm:^24.0.0"
+    "@types/react": "npm:^19.2.0"
+    "@types/react-dom": "npm:^19.2.0"
+    eslint: "npm:^9.0.0"
+    eslint-config-next: "npm:^16.4.0"
+    next: "npm:^16.4.0"
+    openai: "npm:^7.30.1"
     prettier: "npm:^3.6.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    server-only: "npm:^0.0.1"
     supabase: "npm:^2.50.0"
+    tailwindcss: "npm:^4.1.0"
     typescript: "npm:^5.9.0"
+    vanilla-cookieconsent: "npm:^3.1.0"
     vitest: "npm:^4.0.0"
+    zod: "npm:^4.0.0"
   dependenciesMeta:
     esbuild:
       built: true
@@ -4684,6 +4641,13 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: 10c0/b1f3127a5be8125a94f37188b361c212466c292c6910adce3ec106cff5dc211ccaedc4739c11bb70fda59d6fc1f040a9bca289f4e093451521a2372e5231fe0c
+  languageName: node
+  linkType: hard
+
+"server-only@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "server-only@npm:0.0.1"
+  checksum: 10c0/4704f0ef85da0be981af6d4ed8e739d39bcfd265b9c246a684060acda5642d0fdc6daffc2308e71e2682c5f508090978802eae0a77623c9b90a49f9ae68048d6
   languageName: node
   linkType: hard
 
@@ -5400,6 +5364,13 @@ __metadata:
   dependencies:
     punycode: "npm:^2.1.0"
   checksum: 10c0/4ef57b45aa820d7ac6496e9208559986c665e49447cb072744c13b66925a362d96dd5a46c4530a6b8e203e5db5fe849369444440cb22ecfc26c679359e5dfa3c
+  languageName: node
+  linkType: hard
+
+"vanilla-cookieconsent@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "vanilla-cookieconsent@npm:3.1.0"
+  checksum: 10c0/f344d9786ea74850ec4274d85c9049b4d36b3ff368ddb4a0e446bad2dc0ccfad03542e97f40f7eb103b9e06d8b4d5381f63f8f0f80d898f80c5bf3e96e877382
   languageName: node
   linkType: hard
 

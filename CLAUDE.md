@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Seamflow — "Hotdog or Not Hotdog": upload an image, it's stored in Supabase Storage and an OpenAI vision model says whether it's a hotdog. Next.js 16 (App Router) + API route handlers, Supabase (Postgres), deployed as one Vercel project. Yarn 4 workspaces monorepo.
+Seamflow — "Hotdog or Not Hotdog": a visitor uploads an image (signed URL → Supabase Storage), an OpenAI vision model says whether it's a hotdog, and the result joins their history. One Next.js 16 (App Router) project with API route handlers, Supabase (Postgres + Storage), deployed to Vercel.
 
 ## Critical Rules
 
@@ -21,11 +21,11 @@ Seamflow — "Hotdog or Not Hotdog": upload an image, it's stored in Supabase St
    - Don't create similarly named files for the same domain/concern — refactor and reuse
    - Remove unused code after implementing
    - If you can reduce layers of abstraction, do it. **IMPORTANT**
-8. All API calls go through `packages/shared-controllers` — API URLs start with `/api`
-9. Update `shared-controllers` and `shared-types` when changing API routes
-10. Supabase and OpenAI are accessed **only from `apps/api`**. Never from browser code.
+8. All API calls go through `shared/controllers` — API URLs start with `/api`
+9. Update `shared/controllers` and `shared/types` when changing API routes
+10. Supabase and OpenAI are accessed **only from `server/`** (guarded by `import 'server-only'`). Never from browser code.
 11. Every schema change is a new SQL file in `supabase/migrations/`, then `yarn db:types`
-12. **Next.js 16 differs from your training data** — read the relevant guide in `frontend/web/node_modules/next/dist/docs/` (or root `node_modules/next/dist/docs/`) before writing Next.js code. See `frontend/web/AGENTS.md`. Use context7 MCP for other libraries.
+12. **Next.js 16 differs from your training data** — read the relevant guide in `node_modules/next/dist/docs/` before writing Next.js code. See `AGENTS.md`. Use context7 MCP for other libraries.
 13. Add tests: unit tests next to the file (`*.test.ts`), API tests in `./test/api-tests/`
 14. Prefer editing existing files over creating new ones
 15. Only create documentation when explicitly requested
@@ -36,50 +36,55 @@ Seamflow — "Hotdog or Not Hotdog": upload an image, it's stored in Supabase St
 nvm use                 # Node 24 (.nvmrc)
 yarn install
 yarn db:start           # local Supabase (Docker); applies migrations, prints keys
-cp frontend/web/.env.example frontend/web/.env.local   # set OPENAI_API_KEY + Supabase keys
+cp .env.example .env.local   # set OPENAI_API_KEY + Supabase keys
 
 yarn dev                # http://localhost:3000 (web + /api)
-yarn typecheck          # all workspaces
+yarn typecheck          # next typegen + tsc
 yarn lint               # eslint (eslint-config-next)
 yarn test               # vitest
 yarn build              # next build
 
 yarn db:stop            # stop local Supabase
-yarn db:reset           # apply supabase/migrations to local DB
-yarn db:types           # regenerate packages/shared-types/src/database/Database.type.ts
+yarn db:reset           # re-apply supabase/migrations to local DB
+yarn db:types           # regenerate shared/types/database/Database.type.ts
 yarn db:push            # push migrations to linked remote project (`yarn supabase link` first)
 ```
 
 ## Architecture
 
 ```
-├── packages/                 # Shared libraries (@seamflow/* prefix)
-│   ├── shared-types          # Domain types + consts (HotdogTypes), env type, Supabase Database type
-│   ├── shared-utils          # FetchRequest, ExpectedServerError, domain validators (client + server)
-│   └── shared-controllers    # API client controllers (isomorphic)
-├── apps/
-│   └── api                   # Server-only: src/api/[domain]/[Domain].handler|service|prompt.ts, src/supabase + src/openai clients
-├── frontend/
-│   └── web                   # Next.js App Router; app/api/**/route.ts are thin adapters to apps/api handlers
+├── app/                      # Next.js routes; app/api/**/route.ts are 1–2 line adapters to server/ handlers
+├── components/[Domain]/      # UI by domain; components/primitives/ for reusable primitives
+├── hooks/                    # Stateful UI logic split from components
+├── controllers/              # Controller instances for the browser (apiControllers.ts)
+├── server/                   # Server-only (`import 'server-only'`)
+│   ├── api/[domain]/         # [Domain].handler.ts, [Concern].service.ts, [Domain].prompt.ts
+│   ├── clients/              # openai/, supabase/ (getSupabaseClient, SupabaseStorage.client)
+│   ├── configs/              # env access
+│   └── utils/                # handleError, visitorSessionCookie
+├── shared/                   # Isomorphic (browser + server), no Node/DOM APIs
+│   ├── types/                # Domain types + consts (HotdogTypes, VisitorSessionTypes), Database type
+│   ├── utils/                # FetchRequest, uploadFileToSignedUrl, ExpectedServerError, validators
+│   └── controllers/          # API client controllers
 ├── supabase/                 # config.toml + SQL migrations (tables, storage buckets)
-└── test/                     # API tests
+└── test/                     # API tests + shared fakes (test/helpers)
 ```
 
-Request flow: `component → hook → shared-controllers → app/api/**/route.ts → apps/api handler → service → clients (OpenAI, SupabaseStorageClient)`
+Request flow: `component → hook → shared/controllers → app/api/**/route.ts → server handler → service → clients (OpenAI, Supabase)`
 
-**Tech stack**: Node 24, TypeScript, Yarn 4 | Next.js 16, React 19, Tailwind v4 | OpenAI (Responses API, structured outputs via zod) | Supabase | Vitest | Vercel
+**Tech stack**: Node 24, TypeScript, Yarn 4 | Next.js 16, React 19, Tailwind v4 | OpenAI (Responses API, structured outputs via zod) | Supabase | vanilla-cookieconsent | Vitest | Vercel
 
 ## Environment
 
-- API env: `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (type: `SharedTypes.SeamflowEnvironment`), read only through `getEnvironmentVariable()` in `apps/api/src/configs/app.config.ts`
-- Local: `frontend/web/.env.local` (loaded by Next.js)
+- API env: `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (type: `SharedTypes.SeamflowEnvironment`), read only through `getEnvironmentVariable()` in `server/configs/app.config.ts`
+- Local: `.env.local` (loaded by Next.js)
 - Vercel: project env vars per environment (Production / Preview)
 
 ## Deploy
 
 Vercel:
 
-1. Import the repo, set **Root Directory** to `frontend/web` (framework: Next.js, auto-detected)
+1. Import the repo (framework: Next.js, auto-detected; root directory is the repo root)
 2. Node.js version: 24.x
 3. Env vars: `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ENABLE_EXPERIMENTAL_COREPACK=1` (so Vercel uses Yarn 4 from `packageManager`)
 
