@@ -1,0 +1,27 @@
+# yarn
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# env
+*.env
+.env.*
+!.env.example
+
+# Build & dependencies
+build/
+node_modules
+dist/
+logs/
+.react-router/
+.vercel/
+
+# supabase local
+supabase/.branches
+supabase/.temp
+
+.DS_Store

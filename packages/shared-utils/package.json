@@ -1,0 +1,16 @@
+{
+  "name": "@seamflow/shared-utils",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./requests": "./src/requests/index.ts",
+    "./error": "./src/error/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@seamflow/shared-types": "workspace:^"
+  }
+}
