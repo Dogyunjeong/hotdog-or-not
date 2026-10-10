@@ -2,17 +2,17 @@
 
 ## Build Primitive UI and use them
 
-- We are stacking logics from primitive ui components to complex components.
-- Primitive ui components should be reusable and shareable.
-- This re usable pattern with splitting concerns and responsibilities are crucial for maintainability and scalability.
+- Build complex components up from primitive UI components (`components/primitives/`).
+- Primitive UI components should be reusable and shareable.
+- This reusable pattern, with concerns and responsibilities split, is crucial for maintainability and scalability.
 
-## Consider to split heavy logics from UI
+## Split heavy logic from UI
 
-- Some logics are heavy and this case we should split them from UI and use hooks or custom hooks.
+- When logic is heavy, move it out of the component into a custom hook (`hooks/`).
 
-## Copmonent structure
+## Component structure
 
 - Encourage refactoring into smaller components to have better code structure and readability.
-  - Like if one domain has different types, then this could be good place to create components for each type and container render them based on type.
-  - If one component has multiple steps, this should be good place to create components for each step and container render them based on step.
-  - If a component has loading logic, this loading component should be separated from main component.
+  - If a domain has different types, create a component per type and let a container render the right one.
+  - If a component has multiple steps, create a component per step and let a container render the current one.
+  - If a component has a loading state, put the loading UI in its own component.

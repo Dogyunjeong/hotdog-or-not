@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-Hotdog or Not Hotdog — "Hotdog or Not Hotdog": a visitor uploads an image (signed URL → Supabase Storage), an OpenAI vision model says whether it's a hotdog, and the result joins their history. One Next.js 16 (App Router) project with API route handlers, Supabase (Postgres + Storage), deployed to Vercel.
+Hotdog or Not Hotdog (`hotdog-or-not`): a visitor uploads an image (signed URL → Supabase Storage), an OpenAI vision model says whether it's a hotdog, and the result joins their history. One Next.js 16 (App Router) project with API route handlers, Supabase (Postgres + Storage), deployed to Vercel.
+
+Human-facing overview and setup: `README.md`. Production readiness findings: `docs/production-readiness.md`.
 
 ## Critical Rules
 
@@ -42,7 +44,8 @@ cp .env.example .env.local   # set OPENAI_API_KEY + Supabase keys
 yarn dev                # http://localhost:3000 (web + /api)
 yarn typecheck          # next typegen + tsc
 yarn lint               # eslint (eslint-config-next)
-yarn test               # vitest
+yarn test               # vitest (watch)
+yarn test:run           # vitest, single run
 yarn build              # next build
 
 yarn db:stop            # stop local Supabase
@@ -83,17 +86,19 @@ Request flow: `component → hook → shared/controllers → app/api/**/route.ts
 
 ## Deploy
 
+Production: https://hotdog-or-not.vercel.app — Vercel project `hotdog-or-not`, GitHub `Dogyunjeong/hotdog-or-not`, Supabase project `hotdog-or-not`. Push to `main` deploys production; other branches get preview deployments.
+
 Vercel:
 
-1. Import the repo (framework: Next.js, auto-detected; root directory is the repo root)
-2. Node.js version: 24.x (pinned by `engines.node` in `package.json`); functions run in `dub1` (Dublin, `vercel.json`) next to the database
-3. Env vars: `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET` (daily data-retention cron in `vercel.json`), `ENABLE_EXPERIMENTAL_COREPACK=1` (so Vercel uses Yarn 4 from `packageManager`)
+1. Import the repo; root directory is the repo root. `vercel.json` pins the framework (`nextjs`), the function region (`lhr1`, London, next to the database) and the daily data-retention cron
+2. Node.js 24.x is pinned by `engines.node` in `package.json`. Keep `package.json` free of `"type": "module"` — Vercel's Corepack-installed Yarn 4 crashes with it
+3. Env vars (Production and Preview): `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ENABLE_EXPERIMENTAL_COREPACK=1` (so Vercel uses Yarn 4 from `packageManager`); Production also `CRON_SECRET` (the cron route answers 401 without it). Preview currently uses the production Supabase project and OpenAI key — preview deployments read and write production data
 
-Supabase (deploy before the app — migrations create the `hotdog-images` bucket):
+Supabase (deploy before the app — migrations create the tables and storage buckets):
 
-1. Create a project at supabase.com in region `eu-west-1` (Ireland — close to the UK audience; matches the Vercel function region). Production: project "Hotdog or Not Hotdog", ref `isxgdlkmjofjqepizikb`
-2. `yarn supabase login && yarn supabase link --project-ref <ref>`
-3. `yarn db:push` to apply `supabase/migrations`
+1. Create a project at supabase.com in region `eu-west-2` (London — the audience is in the UK; matches the Vercel function region). Production project: `hotdog-or-not`
+2. `yarn supabase login && yarn supabase link --project-ref <ref>` (`supabase login` needs an interactive terminal)
+3. `yarn db:push` to apply `supabase/migrations`. It applies every file in that folder — run it from a checkout of the commit being deployed, never with unfinished migrations present. Never edit a migration that has already been applied; add a new one
 
 ## Workflow
 

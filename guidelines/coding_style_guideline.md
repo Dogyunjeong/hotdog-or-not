@@ -1,10 +1,10 @@
 # General **most important **
 
-- Naming must be explicit. Avoid generic naming. Long naming is fine for clear and readable naming.
-  - e.g use `isProfileCompeleted` instead of `isCompleted`
-  - e.g use `sourceActivityList` instead of `sourceList`
-- Avoid naming that can conflicts with other naming. Be specific when necessary.
-  - e.g use `ShortFormTranscript` and avoid `ShortForm` or `Transcript` if there is `ShortFormScene` and `ShortFormTranscript`.
+- Naming must be explicit. Avoid generic naming. Long names are fine when they make code clear and readable.
+  - e.g. use `isOnboardingCompleted` instead of `isCompleted`
+  - e.g. use `hotdogClassificationList` instead of `list`
+- Avoid names that can conflict with other names. Be specific when necessary.
+  - e.g. use `HotdogImageUploadSession` rather than `UploadSession` when other upload concepts exist.
 
 ## Split logic / concern / flow / responsibility
 
@@ -12,29 +12,29 @@
   - e.g when you need to handle returning user and new user, first check user type and split flow.
   - then handle each case separately. Duplicate logic could be a modularizing and shared in both flows.
   - So split concern, domain, and responsibility earlier. unless it is better to handle together.
-- When you create fronend code it should be same. Design component structure first with splitting concerns and implement.
+- Frontend code follows the same rule. Design component structure first with splitting concerns and implement.
 - This is to have better code structure and readability. So we can maintain code easily.
-- More files are better than one file with long line
+- Prefer several focused files over one long file — but don't add a layer that doesn't earn its place (see CLAUDE.md rule 7).
 
 ## Refactor and reuse
 
 - When create new component/widget, service based on existing one, refactor first and reuse it. So we can share code and reduce redundant works unless it is not worth to do it.
 
-## Platform-specific logic
+## Branching by context
 
-- When platform behavior differs (iOS vs Android, web vs native, etc.), branch out clearly and modularize the platform-specific path. Keep shared logic above and below the branch like a sandwich.
+- When behavior differs by context (e.g. server vs browser, guest vs saved visitor), branch out clearly and modularize each path. Keep shared logic above and below the branch like a sandwich.
 
   ```
   shared logic
     ↓
-  platform-specific path  (one named function per platform — e.g. _doX_ios, _doX_android)
+  context-specific path  (one named function per context — e.g. _classifyForGuest, _classifyForSavedVisitor)
     ↓
   shared logic
   ```
 
-- Don't intersperse `Platform.is*` checks throughout the body. Decide once where to branch, name the branched functions explicitly, and let the reader see the platform's role at a glance.
+- Don't scatter context checks throughout the body. Decide once where to branch, name the branched functions explicitly, and let the reader see each context's role at a glance.
 
-- Document the platform difference at the branch — explain *why* the platforms diverge, not just that they do. Future readers shouldn't have to dig through plugin source to understand the split.
+- Document the difference at the branch — explain *why* the paths diverge, not just that they do.
 
 ## User facing text
 
@@ -67,9 +67,9 @@
     return;
   }
   ```
-- don't use for loop unless there is other method.s
-  - use Promise.all , BPromise.map, BPromise.map series
-  - use array methods like forEach, map, filter, reduce, every, some and et
+- don't use for loops unless there is no other way
+  - use array methods like forEach, map, filter, reduce, every, some, etc.
+  - async: `Promise.all` for independent work; when steps must run in order or share state, chain them with `reduce`
 
   ```typescript
   /**
@@ -81,11 +81,14 @@
   b.filter(() => {});
   b.map(() => {});
 
-  BPromise.map(b, async (item) => {});
-  BPromise.mapSeries(b, async (item) => {});
+  await Promise.all(b.map(async (item) => {}));
+  await b.reduce(async (previous, item) => {
+    await previous;
+    // runs one item at a time
+  }, Promise.resolve());
   ```
 
-- use switch cae instead of if else statement
+- use switch/case instead of if/else chains
   ```typescript
   switch (type) {
     case A:
