@@ -1,0 +1,69 @@
+{
+  "score": "{score}/{max}",
+  "scoreForScreenReader": "{max}점 만점에 {score}점",
+  "nutrientColumn": "영양소",
+  "nutritionMetric": {
+    "caloriesKcal": "칼로리",
+    "proteinG": "단백질",
+    "fatG": "지방",
+    "carbsG": "탄수화물",
+    "sodiumMg": "나트륨"
+  },
+  "nutritionValue": {
+    "caloriesKcal": "약 {value} kcal",
+    "grams": "{value} g",
+    "milligrams": "{value} mg"
+  },
+  "legacyNotice": "이 기록은 우리가 업그레이드되기 전 것이라 판정 결과만 있어요.",
+  "tastiness": {
+    "title": "맛 측정기",
+    "aspect": {
+      "bun": "빵",
+      "sausage": "소시지",
+      "toppings": "토핑",
+      "presentation": "플레이팅"
+    }
+  },
+  "style": {
+    "title": "스타일",
+    "hotdogCount": "핫도그 {count}개 발견"
+  },
+  "origin": {
+    "title": "어디서 왔을까요?",
+    "unknownPlace": "어딘가 맛있는 곳",
+    "source": {
+      "photoLocation": "사진 속 위치 기준",
+      "styleGuess": "스타일로 추측"
+    },
+    "locationPrivacy": "도시나 지역까지만 저장하고, 정확한 위치는 절대 저장하지 않아요.",
+    "locationCredit": "위치 데이터 © <link>OpenStreetMap contributors</link>"
+  },
+  "ingredients": {
+    "title": "들어간 재료"
+  },
+  "nutrition": {
+    "title": "영양 정보",
+    "caption": "추정 영양 정보",
+    "disclaimer": "사진으로 추정한 대략적인 값이에요 — 식단 조언이 아니에요.",
+    "perHotdog": "핫도그 1개당",
+    "allHotdogs": "전체 {count}개",
+    "perServing": "1회 제공량"
+  },
+  "notHotdog": {
+    "subjectTitle": "우리가 본 것",
+    "food": "음식",
+    "notFood": "음식 아님",
+    "notEdible": "먹을 수 없는 거라 영양 정보는 건너뛰었어요. 천만에요.",
+    "nutritionUnknown": "이번 건 영양 정보를 추정하지 못했어요."
+  },
+  "comparison": {
+    "title": "핫도그 vs. {subject}",
+    "winnerHotdog": "승자: <emoji></emoji>핫도그",
+    "winnerSubject": "승자: {subject}",
+    "tie": "무승부예요.",
+    "caption": "칼로리, 지방, 탄수화물, 나트륨은 낮을수록, 단백질은 높을수록 이겨요.",
+    "averageHotdog": "평균 핫도그",
+    "winnerSuffix": ", 승리",
+    "disclaimer": "평균적인 핫도그와 비교한 값이에요. 대략적인 추정치예요."
+  }
+}

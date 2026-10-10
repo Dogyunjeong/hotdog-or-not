@@ -1,6 +1,7 @@
 'use client';
 
 import type { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
 import { useHotdogClassificationDeletion } from '@/hooks/useHotdogClassificationDeletion';
@@ -66,6 +67,7 @@ const getHistoryFocusTargetAfterDeletion = (
  * desktop and in a drawer below it; crossing the breakpoint moves an open result across.
  */
 const HotdogClassificationWorkspaceLayout = () => {
+  const t = useTranslations('detailView');
   const { showNotice } = useVisitorPrivacy();
   const { historyState, prependHotdogClassification, removeHotdogClassification, reloadHistory } =
     useHotdogClassificationHistory();
@@ -153,7 +155,7 @@ const HotdogClassificationWorkspaceLayout = () => {
         );
         removeHotdogClassification(deletedHotdogClassificationId);
         setSelectedHotdogClassificationId(null);
-        showNotice('Photo deleted.');
+        showNotice(t('photoDeleted'));
       },
     });
 

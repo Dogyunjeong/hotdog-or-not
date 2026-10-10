@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import type { HotdogClassificationDeletionState } from '@/hooks/useHotdogClassificationDeletion';
 
 import ConfirmDialog from '@/components/primitives/ConfirmDialog';
@@ -15,22 +17,18 @@ const HotdogClassificationDeletionDialog = ({
   onConfirm,
   onCancel,
 }: HotdogClassificationDeletionDialogProps) => {
+  const t = useTranslations('detailView.deletionDialog');
+
   return (
     <ConfirmDialog
       isOpen={deletionState.status !== 'idle'}
-      title="Delete this photo?"
-      description={
-        <p>The photo and its verdict will be permanently erased. This can&apos;t be undone.</p>
-      }
-      confirmLabel="Delete"
-      pendingConfirmLabel="Deleting…"
-      cancelLabel="Cancel"
+      title={t('title')}
+      description={<p>{t('description')}</p>}
+      confirmLabel={t('confirm')}
+      pendingConfirmLabel={t('pendingConfirm')}
+      cancelLabel={t('cancel')}
       isPending={deletionState.status === 'deleting'}
-      errorMessage={
-        deletionState.status === 'failed'
-          ? "We couldn't delete this photo. Nothing was removed — try again."
-          : undefined
-      }
+      errorMessage={deletionState.status === 'failed' ? t('error') : undefined}
       onConfirm={onConfirm}
       onCancel={onCancel}
     />

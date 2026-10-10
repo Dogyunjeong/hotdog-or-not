@@ -1,0 +1,13 @@
+{
+  "IMAGE_TYPE_UNSUPPORTED": "Please upload a JPEG, PNG, GIF, or WebP image.",
+  "IMAGE_EMPTY": "This image looks empty. Please try another one.",
+  "IMAGE_TOO_LARGE": "Please upload an image smaller than {maxMegabytes}MB.",
+  "IMAGE_UNREADABLE": "We couldn't read that photo. Please try a different JPEG, PNG, GIF, or WebP image.",
+  "IMAGE_TOO_LARGE_TO_SAVE": "This photo is too large to save. Please try a smaller one.",
+  "PHOTO_REQUIRED": "Please choose a photo to check.",
+  "UPLOAD_EXPIRED": "That upload has expired. Please pick your photo again.",
+  "UPLOAD_FAILED": "We couldn't upload your photo. Please try again.",
+  "CLASSIFICATION_NOT_FOUND": "We couldn't find that photo. It may already be deleted.",
+  "CLASSIFICATION_FAILED": "We couldn't check your image right now. Please try again in a moment.",
+  "OFFLINE": "You seem to be offline. Check your connection and try again."
+}

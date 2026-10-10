@@ -1,0 +1,22 @@
+{
+  "consentModal": {
+    "title": "핫도그 기록을 저장할까요?",
+    "description": "사진과 결과를 이 브라우저에 보관해서 나중에 다시 볼 수 있도록 쿠키를 하나 설정하려고 해요. 거부하셔도 모든 기능을 그대로 쓸 수 있어요. 다만 아무것도 저장하지 않을 뿐이에요. 추적도, 광고도 없어요.",
+    "cookiePolicyLink": "쿠키 정책",
+    "acceptAllButton": "동의",
+    "rejectButton": "거부"
+  },
+  "preferencesModal": {
+    "title": "쿠키 설정",
+    "acceptAllButton": "모두 동의",
+    "rejectAllButton": "모두 거부",
+    "saveButton": "선택 저장",
+    "closeIconLabel": "닫기",
+    "essentialTitle": "필수",
+    "essentialDescription": "쿠키 선택 내용을 기억해요 (cc_cookie). 항상 켜져 있어요.",
+    "historyTitle": "기록",
+    "historyDescription": "사진과 결과를 이 브라우저에 보관해요 (hotdog_or_not_visitor_session). 끄면 저장된 모든 데이터가 삭제돼요.",
+    "deleteTitle": "모든 데이터를 지우고 싶으신가요?",
+    "deleteDescription": "페이지 하단의 “내 데이터 삭제”를 언제든 이용해 주세요."
+  }
+}

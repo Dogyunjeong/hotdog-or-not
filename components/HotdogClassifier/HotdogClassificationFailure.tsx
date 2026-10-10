@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import Button from '@/components/primitives/Button';
 import InlineAlert from '@/components/primitives/InlineAlert';
 
@@ -12,6 +14,8 @@ const HotdogClassificationFailure = ({
   canRetry,
   onRetry,
 }: HotdogClassificationFailureProps) => {
+  const t = useTranslations('classifier.failure');
+
   return (
     <InlineAlert
       message={errorMessage}
@@ -20,7 +24,7 @@ const HotdogClassificationFailure = ({
       action={
         canRetry && (
           <Button variant="secondary" size="sm" onClick={onRetry}>
-            Try again
+            {t('retry')}
           </Button>
         )
       }

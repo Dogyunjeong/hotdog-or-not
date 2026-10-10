@@ -1,25 +1,26 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
-const HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_LIST = [
-  'Checking for hotdog…',
-  'Squinting at the bun…',
-  'Counting the toppings…',
-  'Guessing the calories (roughly)…',
-  "Working out where it's from…",
-];
+const HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_KEY_LIST = [
+  'checking',
+  'squinting',
+  'counting',
+  'guessing',
+  'locating',
+] as const;
 const PROGRESS_MESSAGE_ROTATION_INTERVAL_MS = 2500;
 const STILL_THINKING_DELAY_MS = 12_000;
 
 /** The first message is shown once; the rotation then loops over the rest. */
-const getProgressMessage = (rotationStep: number) => {
+const getProgressMessageKey = (rotationStep: number) => {
   if (rotationStep === 0) {
-    return HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_LIST[0];
+    return HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_KEY_LIST[0];
   }
 
-  const loopingMessageCount = HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_LIST.length - 1;
-  return HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_LIST[
+  const loopingMessageCount = HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_KEY_LIST.length - 1;
+  return HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_KEY_LIST[
     1 + ((rotationStep - 1) % loopingMessageCount)
   ];
 };
@@ -29,6 +30,7 @@ const getProgressMessage = (rotationStep: number) => {
  * Starts over whenever the component using it mounts.
  */
 export const useHotdogClassificationProgressMessage = () => {
+  const t = useTranslations('classifier.progress');
   const [rotationStep, setRotationStep] = useState(0);
   const [isStillThinking, setIsStillThinking] = useState(false);
 
@@ -48,8 +50,8 @@ export const useHotdogClassificationProgressMessage = () => {
 
   return {
     /** Announced once; the rotating message is visual only. */
-    announcedProgressMessage: HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_LIST[0],
-    rotatingProgressMessage: getProgressMessage(rotationStep),
+    announcedProgressMessage: t(HOTDOG_CLASSIFICATION_PROGRESS_MESSAGE_KEY_LIST[0]),
+    rotatingProgressMessage: t(getProgressMessageKey(rotationStep)),
     isStillThinking,
   };
 };

@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { useVisitorPrivacy } from '@/hooks/useVisitorPrivacy';
 
 import Button from '@/components/primitives/Button';
@@ -15,16 +17,17 @@ interface HotdogClassificationHistoryGuestProps {
 const HotdogClassificationHistoryGuest = ({
   onEnableHistory,
 }: HotdogClassificationHistoryGuestProps) => {
+  const t = useTranslations('history');
   const { isEnableHistoryFailed, openCookieSettings } = useVisitorPrivacy();
 
   return (
     <div className="flex flex-col gap-3">
       {isEnableHistoryFailed && (
         <InlineAlert
-          message="We couldn't turn on history right now."
+          message={t('guest.enableFailed')}
           action={
             <Button variant="secondary" size="sm" onClick={onEnableHistory}>
-              Try again
+              {t('guest.retry')}
             </Button>
           }
         />
@@ -33,22 +36,17 @@ const HotdogClassificationHistoryGuest = ({
         <span aria-hidden className="text-3xl">
           🌭
         </span>
-        <p className="font-medium">History is off</p>
-        <p className="text-sm text-foreground-muted">
-          You chose not to save anything, so your verdicts disappear when you leave. Turn on history
-          to keep your photos and results in this browser.
-        </p>
+        <p className="font-medium">{t('guest.title')}</p>
+        <p className="text-sm text-foreground-muted"> {t('guest.description')} </p>
         <div className="flex flex-col items-center gap-1">
           <Button variant="primary" onClick={onEnableHistory}>
-            Turn on history
+            {t('guest.enable')}
           </Button>
           <TextButton variant="standalone" onClick={openCookieSettings}>
-            Cookie settings
+            {t('guest.cookieSettings')}
           </TextButton>
         </div>
-        <p className="text-xs text-foreground-muted">
-          Checks from before you turn it on won&apos;t be saved.
-        </p>
+        <p className="text-xs text-foreground-muted"> {t('guest.note')} </p>
       </Card>
     </div>
   );

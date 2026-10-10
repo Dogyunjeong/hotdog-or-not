@@ -1,0 +1,32 @@
+{
+  "title": "Your history",
+  "photoCount": "{count, plural, one {# photo} other {# photos}}",
+  "loading": "Loading your history…",
+  "enabling": "Turning on history…",
+  "moreOptions": "More history options",
+  "deleteMyData": "Delete my data",
+  "recentLimit": "Showing your {limit} most recent photos.",
+  "verdict": {
+    "hotdog": "Hotdog",
+    "notHotdog": "Not hotdog"
+  },
+  "detailTitle": "{verdict} · {date}",
+  "photoUnavailable": "Photo no longer available",
+  "empty": {
+    "title": "No photos yet",
+    "description": "Upload your first photo and your verdicts will show up here."
+  },
+  "error": {
+    "message": "We couldn't load your history right now.",
+    "retry": "Try again"
+  },
+  "guest": {
+    "enableFailed": "We couldn't turn on history right now.",
+    "retry": "Try again",
+    "title": "History is off",
+    "description": "You chose not to save anything, so your verdicts disappear when you leave. Turn on history to keep your photos and results in this browser.",
+    "enable": "Turn on history",
+    "cookieSettings": "Cookie settings",
+    "note": "Checks from before you turn it on won't be saved."
+  }
+}

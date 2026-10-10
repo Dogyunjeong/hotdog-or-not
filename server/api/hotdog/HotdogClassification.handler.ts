@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type { Database, HotdogTypes } from '@/shared/types';
+import { type Database, HotdogTypes } from '@/shared/types';
 import { ExpectedServerError } from '@/shared/utils/error';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type OpenAI from 'openai';
@@ -28,6 +28,7 @@ import HotdogClassificationService from './HotdogClassification.service';
 
 const classifyUploadedHotdogImageRequestSchema = z.object({
   tempImagePath: z.string(),
+  locale: z.enum(HotdogTypes.HOTDOG_CLASSIFICATION_LOCALE_LIST).default('en'),
 });
 
 const GUEST_HOTDOG_CLASSIFICATION_LIST_RESPONSE: HotdogTypes.HotdogClassificationListResponse = {
@@ -78,12 +79,12 @@ class HotdogClassificationHandler {
 
   private _parseClassifyUploadedHotdogImageRequest = async (
     request: Request,
-  ): Promise<HotdogTypes.ClassifyUploadedHotdogImageRequest> => {
+  ): Promise<Required<HotdogTypes.ClassifyUploadedHotdogImageRequest>> => {
     const requestBody = await request.json().catch(() => undefined);
     const parsedRequest = classifyUploadedHotdogImageRequestSchema.safeParse(requestBody);
 
     if (!parsedRequest.success) {
-      throw new ExpectedServerError('Please choose a photo to check.');
+      throw new ExpectedServerError({ errorCode: 'PHOTO_REQUIRED' });
     }
     return parsedRequest.data;
   };
@@ -93,24 +94,28 @@ class HotdogClassificationHandler {
     hotdogClassificationService,
     visitorSession,
     tempImagePath,
+    locale,
   }: {
     hotdogClassificationService: HotdogClassificationService;
     visitorSession?: VisitorSession;
     tempImagePath: string;
+    locale: HotdogTypes.HotdogClassificationLocale;
   }) => {
     if (!visitorSession) {
-      return hotdogClassificationService.classifyGuestUploadedImage({ tempImagePath });
+      return hotdogClassificationService.classifyGuestUploadedImage({ tempImagePath, locale });
     }
     return hotdogClassificationService.classifyVisitorUploadedImage({
       visitorSessionId: visitorSession.id,
       storageFolderId: visitorSession.storageFolderId,
       tempImagePath,
+      locale,
     });
   };
 
   public classifyUploadedImage = async (request: Request): Promise<Response> => {
     try {
-      const { tempImagePath } = await this._parseClassifyUploadedHotdogImageRequest(request);
+      const { tempImagePath, locale } =
+        await this._parseClassifyUploadedHotdogImageRequest(request);
       const { hotdogClassificationService, visitorSessionService } = this._getDependencies();
       const visitorSession = await resolveRequestVisitorSession({
         request,
@@ -121,6 +126,7 @@ class HotdogClassificationHandler {
         hotdogClassificationService,
         visitorSession,
         tempImagePath,
+        locale,
       });
       return withRequestVisitorSessionCookie(
         Response.json(hotdogClassificationRecord),

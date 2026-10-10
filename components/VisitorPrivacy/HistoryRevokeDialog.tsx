@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import ConfirmDialog from '@/components/primitives/ConfirmDialog';
 import { useVisitorDataDeletion } from '@/hooks/useVisitorDataDeletion';
 
@@ -12,6 +14,7 @@ interface HistoryRevokeDialogProps {
 
 /** Shown after history was turned off in Cookie settings: turning it off erases the data. */
 const HistoryRevokeDialog = ({ isOpen, onErased, onKeepHistory }: HistoryRevokeDialogProps) => {
+  const t = useTranslations('privacy.historyRevoke');
   const {
     isVisitorDataDeletionPending,
     isVisitorDataDeletionFailed,
@@ -36,22 +39,13 @@ const HistoryRevokeDialog = ({ isOpen, onErased, onKeepHistory }: HistoryRevokeD
   return (
     <ConfirmDialog
       isOpen={isOpen}
-      title="Turn off history?"
-      description={
-        <p>
-          Turning off history erases everything we&apos;ve saved for this browser — all your photos,
-          verdicts and your history session. This can&apos;t be undone.
-        </p>
-      }
-      confirmLabel="Turn off and erase"
-      pendingConfirmLabel="Erasing…"
-      cancelLabel="Keep history on"
+      title={t('title')}
+      description={<p>{t('description')}</p>}
+      confirmLabel={t('confirmLabel')}
+      pendingConfirmLabel={t('pendingConfirmLabel')}
+      cancelLabel={t('cancelLabel')}
       isPending={isVisitorDataDeletionPending}
-      errorMessage={
-        isVisitorDataDeletionFailed
-          ? "We couldn't erase your data, so history is still on. Try again."
-          : undefined
-      }
+      errorMessage={isVisitorDataDeletionFailed ? t('error') : undefined}
       onConfirm={handleConfirm}
       onCancel={handleCancel}
     />

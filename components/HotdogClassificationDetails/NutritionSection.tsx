@@ -1,13 +1,10 @@
 import { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 
 import StatTable from '@/components/primitives/StatTable';
 
 import DetailSection from './DetailSection';
-import {
-  formatHotdogNutritionValue,
-  HOTDOG_NUTRITION_METRIC_LABEL,
-  NUTRIENT_COLUMN_LABEL,
-} from './detailsFormat';
+import { useHotdogNutritionFormat } from './detailsFormat';
 
 export interface NutritionColumn {
   label: string;
@@ -20,22 +17,24 @@ interface NutritionSectionProps {
 }
 
 const NutritionSection = ({ columnList, className }: NutritionSectionProps) => {
+  const t = useTranslations('details');
+  const { getNutrientColumnLabel, getNutritionMetricLabel, formatNutritionValue } =
+    useHotdogNutritionFormat();
+
   return (
-    <DetailSection title="Nutrition" className={className}>
+    <DetailSection title={t('nutrition.title')} className={className}>
       <StatTable
-        caption="Estimated nutrition"
+        caption={t('nutrition.caption')}
         columnHeaderList={['', ...columnList.map(({ label }) => label)]}
-        rowHeaderLabel={NUTRIENT_COLUMN_LABEL}
+        rowHeaderLabel={getNutrientColumnLabel()}
         rowList={HotdogTypes.HOTDOG_NUTRITION_METRIC_LIST.map((metric) => ({
-          header: HOTDOG_NUTRITION_METRIC_LABEL[metric],
+          header: getNutritionMetricLabel(metric),
           cellList: columnList.map(({ nutrition }) => ({
-            value: formatHotdogNutritionValue(metric, nutrition[metric]),
+            value: formatNutritionValue(metric, nutrition[metric]),
           })),
         }))}
       />
-      <p className="text-xs text-foreground-muted">
-        Rough estimates from a photo — not dietary advice.
-      </p>
+      <p className="text-xs text-foreground-muted">{t('nutrition.disclaimer')}</p>
     </DetailSection>
   );
 };

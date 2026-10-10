@@ -1,28 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef } from 'react';
 
 import TextButton from '@/components/primitives/TextButton';
 import { type HistoryConsentStatus, useVisitorPrivacy } from '@/hooks/useVisitorPrivacy';
-
-const GUEST_RESULT_MESSAGE = "History is off, so this result won't be saved.";
-
-const getGuestResultNoteCopy = ({
-  historyConsentStatus,
-  isEnableHistoryFailed,
-}: {
-  historyConsentStatus: HistoryConsentStatus;
-  isEnableHistoryFailed: boolean;
-}) => {
-  if (historyConsentStatus === 'enabling') {
-    return { message: GUEST_RESULT_MESSAGE, actionLabel: 'Turning on…' };
-  }
-
-  if (isEnableHistoryFailed) {
-    return { message: "We couldn't turn on history right now.", actionLabel: 'Try again' };
-  }
-  return { message: GUEST_RESULT_MESSAGE, actionLabel: 'Turn on history' };
-};
 
 interface GuestResultNoteActionProps {
   historyConsentStatus: HistoryConsentStatus;
@@ -36,11 +18,20 @@ const GuestResultNoteAction = ({
   isEnableHistoryFailed,
   enableHistory,
 }: GuestResultNoteActionProps) => {
+  const t = useTranslations('classifier.guestNote');
   const isEnablingHistory = historyConsentStatus === 'enabling';
-  const { message, actionLabel } = getGuestResultNoteCopy({
-    historyConsentStatus,
-    isEnableHistoryFailed,
-  });
+
+  const getCopy = () => {
+    if (isEnablingHistory) {
+      return { message: t('historyOff'), actionLabel: t('enabling') };
+    }
+
+    if (isEnableHistoryFailed) {
+      return { message: t('enableFailed'), actionLabel: t('retry') };
+    }
+    return { message: t('historyOff'), actionLabel: t('enable') };
+  };
+  const { message, actionLabel } = getCopy();
 
   const handleEnableHistoryClick = () => {
     if (isEnablingHistory) {
@@ -70,6 +61,7 @@ const GuestResultNoteAction = ({
  * history turns on, focus moves to the note instead of getting lost.
  */
 const GuestResultNote = () => {
+  const t = useTranslations('classifier.guestNote');
   const { historyConsentStatus, isEnableHistoryFailed, enableHistory } = useVisitorPrivacy();
   const guestResultNoteRef = useRef<HTMLDivElement>(null);
   const isHistoryEnabled = historyConsentStatus === 'enabled';
@@ -87,9 +79,7 @@ const GuestResultNote = () => {
       tabIndex={-1}
       className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-card bg-accent-soft p-3 text-sm text-accent-soft-foreground outline-none"
     >
-      {isHistoryEnabled && (
-        <p>History is on now. This result wasn&apos;t saved, but your next checks will be.</p>
-      )}
+      {isHistoryEnabled && <p>{t('historyOn')}</p>}
       {!isHistoryEnabled && (
         <GuestResultNoteAction
           historyConsentStatus={historyConsentStatus}

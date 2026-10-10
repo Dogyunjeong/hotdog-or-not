@@ -1,7 +1,8 @@
 'use client';
 
 import type { HotdogTypes } from '@/shared/types';
-import { getHotdogImageValidationErrorMessage } from '@/shared/utils/hotdog';
+import { getHotdogImageValidationError } from '@/shared/utils/hotdog';
+import { useLocale } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
 import { hotdogClassificationController } from '@/controllers/apiControllers';
@@ -41,6 +42,7 @@ export const useHotdogClassification = ({
 }: {
   onHotdogClassified: (hotdogClassificationRecord: HotdogTypes.HotdogClassificationRecord) => void;
 }) => {
+  const locale = useLocale();
   const [hotdogClassificationState, setHotdogClassificationState] =
     useState<HotdogClassificationState>({ status: 'idle' });
   const latestRunAbortControllerRef = useRef<AbortController>(undefined);
@@ -110,7 +112,7 @@ export const useHotdogClassification = ({
 
       setHotdogClassificationState({ status: 'classifying' });
       const hotdogClassificationRecord = await runHotdogClassificationStep('classifying', () =>
-        hotdogClassificationController.classifyUploadedImage({ tempImagePath }, { signal }),
+        hotdogClassificationController.classifyUploadedImage({ tempImagePath, locale }, { signal }),
       );
 
       if (signal.aborted) {
@@ -130,17 +132,18 @@ export const useHotdogClassification = ({
 
   /** Returns whether the photo passed validation and is being checked. */
   const classifyImage = (imageFile: File) => {
-    const validationErrorMessage = getHotdogImageValidationErrorMessage({
+    const validationError = getHotdogImageValidationError({
       mediaType: imageFile.type,
       byteSize: imageFile.size,
     });
 
-    if (validationErrorMessage) {
+    if (validationError) {
       abortLatestRun();
       latestAttemptRef.current = undefined;
       setHotdogClassificationState({
         status: 'failed',
-        errorMessage: validationErrorMessage,
+        errorKey: validationError.errorCode,
+        errorValues: validationError.errorValues,
         canRetry: false,
       });
       return false;

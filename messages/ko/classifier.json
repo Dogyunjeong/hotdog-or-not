@@ -1,0 +1,38 @@
+{
+  "sectionLabel": "사진 확인하기",
+  "idle": "사진을 골라 판정을 받아보세요.",
+  "verdict": {
+    "heading": "판정 결과",
+    "hotdog": "핫도그!",
+    "notHotdog": "핫도그 아님<srOnly>.</srOnly>"
+  },
+  "preview": {
+    "empty": "아직 고른 사진이 없어요",
+    "alt": "내 사진"
+  },
+  "picker": {
+    "upload": "사진 올리기",
+    "chooseDifferent": "다른 사진 선택",
+    "tryAnother": "다른 사진 해보기"
+  },
+  "progress": {
+    "uploading": "사진을 올리는 중…",
+    "checking": "핫도그인지 확인하는 중…",
+    "squinting": "빵을 가늘게 뜨고 보는 중…",
+    "counting": "토핑을 세어보는 중…",
+    "guessing": "칼로리를 (대충) 어림하는 중…",
+    "locating": "어디서 왔는지 알아내는 중…",
+    "stillThinking": "아직 생각 중이에요 — 꼼꼼히 살펴보느라 몇 초 더 걸릴 수 있어요."
+  },
+  "failure": {
+    "retry": "다시 시도"
+  },
+  "guestNote": {
+    "historyOff": "기록이 꺼져 있어서 이 결과는 저장되지 않아요.",
+    "enableFailed": "지금은 기록을 켤 수 없어요.",
+    "historyOn": "이제 기록이 켜졌어요. 이 결과는 저장되지 않았지만, 다음 확인부터는 저장돼요.",
+    "enabling": "켜는 중…",
+    "retry": "다시 시도",
+    "enable": "기록 켜기"
+  }
+}

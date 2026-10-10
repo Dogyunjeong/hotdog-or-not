@@ -1,5 +1,9 @@
+import { useTranslations } from 'next-intl';
+
 const HotdogClassificationIdle = () => {
-  return <p className="text-center text-foreground-muted">Pick a photo to get a verdict.</p>;
+  const t = useTranslations('classifier');
+
+  return <p className="text-center text-foreground-muted">{t('idle')}</p>;
 };
 
 export default HotdogClassificationIdle;

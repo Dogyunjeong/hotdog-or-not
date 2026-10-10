@@ -1,38 +1,22 @@
 import type { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 
 import ScoreMeter from '@/components/primitives/ScoreMeter';
 
 import DetailSection from './DetailSection';
-import {
-  formatHotdogScore,
-  formatHotdogScoreForScreenReader,
-  HOTDOG_TASTINESS_ASPECT_LABEL,
-} from './detailsFormat';
-
-interface HotdogScoreTextProps {
-  score: number;
-  className: string;
-}
-
-/** Shows "8.5/10"; screen readers hear "8.5 out of 10". */
-const HotdogScoreText = ({ score, className }: HotdogScoreTextProps) => {
-  return (
-    <span className={`tabular-nums ${className}`}>
-      <span aria-hidden>{formatHotdogScore(score)}</span>
-      <span className="sr-only">{formatHotdogScoreForScreenReader(score)}</span>
-    </span>
-  );
-};
+import HotdogScoreText from './HotdogScoreText';
 
 interface HotdogTastinessBreakdownItemProps {
   breakdownEntry: HotdogTypes.HotdogTastiness['breakdown'][number];
 }
 
 const HotdogTastinessBreakdownItem = ({ breakdownEntry }: HotdogTastinessBreakdownItemProps) => {
+  const t = useTranslations('details');
+
   return (
     <li className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between gap-2 text-sm">
-        <span className="font-medium">{HOTDOG_TASTINESS_ASPECT_LABEL[breakdownEntry.aspect]}</span>
+        <span className="font-medium">{t(`tastiness.aspect.${breakdownEntry.aspect}`)}</span>
         <HotdogScoreText score={breakdownEntry.score} className="text-foreground-muted" />
       </div>
       <ScoreMeter score={breakdownEntry.score} size="sm" />
@@ -47,8 +31,10 @@ interface HotdogTastinessSectionProps {
 }
 
 const HotdogTastinessSection = ({ tastiness, className }: HotdogTastinessSectionProps) => {
+  const t = useTranslations('details');
+
   return (
-    <DetailSection title="Taste-o-meter" className={className}>
+    <DetailSection title={t('tastiness.title')} className={className}>
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <HotdogScoreText score={tastiness.score} className="text-4xl font-bold" />

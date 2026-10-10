@@ -1,6 +1,7 @@
 'use client';
 
 import { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import type { SavedHotdogClassificationRecord } from '@/hooks/useHotdogClassificationHistory';
@@ -17,6 +18,7 @@ const HotdogClassificationHistoryList = ({
   hotdogClassificationList,
   onHotdogClassificationSelect,
 }: HotdogClassificationHistoryListProps) => {
+  const t = useTranslations('history');
   // Records present when the list first rendered came from the server; later ones are new.
   const [initialHotdogClassificationIdSet] = useState(
     () =>
@@ -45,7 +47,7 @@ const HotdogClassificationHistoryList = ({
       </ul>
       {hotdogClassificationList.length >= HotdogTypes.HOTDOG_CLASSIFICATION_HISTORY_LIMIT && (
         <p className="text-center text-xs text-foreground-muted">
-          Showing your {HotdogTypes.HOTDOG_CLASSIFICATION_HISTORY_LIMIT} most recent photos.
+          {t('recentLimit', { limit: HotdogTypes.HOTDOG_CLASSIFICATION_HISTORY_LIMIT })}
         </p>
       )}
     </div>

@@ -1,0 +1,31 @@
+{
+  "deleteAll": {
+    "title": "Delete all your data?",
+    "historyIntro": "This permanently erases everything we've saved for this browser:",
+    "erasedPhotos": "All your uploaded photos",
+    "erasedVerdicts": "All your verdicts and details",
+    "erasedSessionCookie": "Your history session cookie",
+    "historyOutro": "Your cookie choice stays, so we won't ask again. This can't be undone.",
+    "guestDescription": "History is off, so we aren't saving anything right now. If you saved photos in this browser before, this permanently erases them.",
+    "confirmLabel": "Delete everything",
+    "pendingConfirmLabel": "Deleting…",
+    "keepLabel": "Keep my data",
+    "cancelLabel": "Cancel",
+    "error": "We couldn't delete your data. Nothing was removed, so it's safe to try again."
+  },
+  "historyRevoke": {
+    "title": "Turn off history?",
+    "description": "Turning off history erases everything we've saved for this browser — all your photos, verdicts and your history session. This can't be undone.",
+    "confirmLabel": "Turn off and erase",
+    "pendingConfirmLabel": "Erasing…",
+    "cancelLabel": "Keep history on",
+    "error": "We couldn't erase your data, so history is still on. Try again."
+  },
+  "notices": {
+    "allDataErased": "All gone. Your photos and verdicts were deleted.",
+    "guestDataErased": "Done. Nothing saved in this browser remains.",
+    "historyRevoked": "History is off and your data was erased.",
+    "historyKept": "History stays on.",
+    "historyEnabled": "History is on. New checks will be saved here."
+  }
+}

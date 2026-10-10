@@ -29,6 +29,7 @@ Hotdog or Not Hotdog — "Hotdog or Not Hotdog": a visitor uploads an image (sig
 13. Add tests: unit tests next to the file (`*.test.ts`), API tests in `./test/api-tests/`
 14. Prefer editing existing files over creating new ones
 15. Only create documentation when explicitly requested
+16. i18n (next-intl): every user-facing string lives in `messages/{en,ko}/{namespace}.json` (one file per UI area; English is the typed source). Use `useTranslations`/`getTranslations`, `useFormatter` for numbers/dates, and `Link`/`usePathname` from `@/i18n/navigation`. The URL is the only language state (`/en`, `/ko`; `/` redirects by Accept-Language); never add a locale cookie. API errors carry an `errorCode` that the UI translates.
 
 ## Commands
 

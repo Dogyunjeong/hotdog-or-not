@@ -1,0 +1,69 @@
+{
+  "score": "{score}/{max}",
+  "scoreForScreenReader": "{score} out of {max}",
+  "nutrientColumn": "Nutrient",
+  "nutritionMetric": {
+    "caloriesKcal": "Calories",
+    "proteinG": "Protein",
+    "fatG": "Fat",
+    "carbsG": "Carbs",
+    "sodiumMg": "Sodium"
+  },
+  "nutritionValue": {
+    "caloriesKcal": "≈ {value} kcal",
+    "grams": "{value} g",
+    "milligrams": "{value} mg"
+  },
+  "legacyNotice": "This check is from before we got fancy, so there's just the verdict.",
+  "tastiness": {
+    "title": "Taste-o-meter",
+    "aspect": {
+      "bun": "Bun",
+      "sausage": "Sausage",
+      "toppings": "Toppings",
+      "presentation": "Presentation"
+    }
+  },
+  "style": {
+    "title": "The style",
+    "hotdogCount": "{count, plural, one {# hotdog spotted} other {# hotdogs spotted}}"
+  },
+  "origin": {
+    "title": "Where it's from",
+    "unknownPlace": "Somewhere delicious",
+    "source": {
+      "photoLocation": "From your photo's location",
+      "styleGuess": "Guessed from the style"
+    },
+    "locationPrivacy": "We only keep the city or region — never the exact spot.",
+    "locationCredit": "Location data © <link>OpenStreetMap contributors</link>"
+  },
+  "ingredients": {
+    "title": "What's in it"
+  },
+  "nutrition": {
+    "title": "Nutrition",
+    "caption": "Estimated nutrition",
+    "disclaimer": "Rough estimates from a photo — not dietary advice.",
+    "perHotdog": "Per hotdog",
+    "allHotdogs": "All {count}",
+    "perServing": "Per serving"
+  },
+  "notHotdog": {
+    "subjectTitle": "What we see",
+    "food": "Food",
+    "notFood": "Not food",
+    "notEdible": "Not edible, so we skipped the nutrition facts. You're welcome.",
+    "nutritionUnknown": "We couldn't estimate nutrition for this one."
+  },
+  "comparison": {
+    "title": "Hotdog vs. {subject}",
+    "winnerHotdog": "Winner: <emoji></emoji>the hotdog",
+    "winnerSubject": "Winner: {subject}",
+    "tie": "It's a tie.",
+    "caption": "Lower calories, fat, carbs and sodium win. More protein wins.",
+    "averageHotdog": "Avg. hotdog",
+    "winnerSuffix": ", wins",
+    "disclaimer": "Compared with an average hotdog. Rough estimates."
+  }
+}

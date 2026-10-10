@@ -1,10 +1,11 @@
-import { getHotdogClassificationVerdictLabel } from './hotdogClassificationLabel';
+import { useHotdogClassificationLabel } from './hotdogClassificationLabel';
 
 interface HotdogClassificationVerdictBadgeProps {
   isHotdog: boolean;
 }
 
 const HotdogClassificationVerdictBadge = ({ isHotdog }: HotdogClassificationVerdictBadgeProps) => {
+  const { getHotdogClassificationVerdictLabel } = useHotdogClassificationLabel();
   const verdictBadgeClassName = isHotdog
     ? 'bg-hotdog-yes-soft text-hotdog-yes-soft-foreground'
     : 'bg-hotdog-no-soft text-hotdog-no-soft-foreground';

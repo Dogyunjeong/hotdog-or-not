@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 
 import type { HotdogClassificationHistoryState } from '@/hooks/useHotdogClassificationHistory';
@@ -16,7 +17,6 @@ import HotdogClassificationHistoryLoading from './HotdogClassificationHistoryLoa
 /** Focus target when there is no card left to return to. */
 export const HOTDOG_CLASSIFICATION_HISTORY_HEADING_ID = 'hotdog-classification-history-heading';
 const HOTDOG_CLASSIFICATION_HISTORY_CONTENT_ID = 'hotdog-classification-history-content';
-const HOTDOG_CLASSIFICATION_HISTORY_TITLE = 'Your history';
 
 /** Only a non-empty list gets a count; the empty card already says there is nothing yet. */
 const getHotdogClassificationHistoryCount = (historyState: HotdogClassificationHistoryState) => {
@@ -44,11 +44,13 @@ const HotdogClassificationHistoryContent = ({
   onEnableHistory,
   onHotdogClassificationSelect,
 }: HotdogClassificationHistoryContentProps) => {
+  const t = useTranslations('history');
+
   switch (historyState.status) {
     case 'loading':
-      return <HotdogClassificationHistoryLoading loadingMessage="Loading your history…" />;
+      return <HotdogClassificationHistoryLoading loadingMessage={t('loading')} />;
     case 'enabling':
-      return <HotdogClassificationHistoryLoading loadingMessage="Turning on history…" />;
+      return <HotdogClassificationHistoryLoading loadingMessage={t('enabling')} />;
     case 'guest':
       return <HotdogClassificationHistoryGuest onEnableHistory={onEnableHistory} />;
     case 'failed':
@@ -80,14 +82,14 @@ interface HotdogClassificationHistoryCountProps {
 const HotdogClassificationHistoryCount = ({
   hotdogClassificationCount,
 }: HotdogClassificationHistoryCountProps) => {
+  const t = useTranslations('history');
+
   return (
     <>
       <span aria-hidden className="text-foreground-muted">
         {hotdogClassificationCount}
       </span>
-      <span className="sr-only">
-        {hotdogClassificationCount === 1 ? '1 photo' : `${hotdogClassificationCount} photos`}
-      </span>
+      <span className="sr-only">{t('photoCount', { count: hotdogClassificationCount })}</span>
     </>
   );
 };
@@ -108,6 +110,7 @@ const HotdogClassificationHistory = ({
   onRetry,
   onHotdogClassificationSelect,
 }: HotdogClassificationHistoryProps) => {
+  const t = useTranslations('history');
   const { enableHistory, openDeleteAllData } = useVisitorPrivacy();
   const historyHeadingRef = useRef<HTMLHeadingElement>(null);
   const [isHistoryCollapsed, setIsHistoryCollapsed] = useState(false);
@@ -148,7 +151,7 @@ const HotdogClassificationHistory = ({
             className={`flex min-h-11 w-full items-center gap-2 rounded-control text-left sm:hidden ${FOCUS_RING_CLASS_NAME}`}
           >
             <span>
-              {HOTDOG_CLASSIFICATION_HISTORY_TITLE}
+              {t('title')}
               {hotdogClassificationCount !== undefined && (
                 <>
                   <span aria-hidden className="text-foreground-muted">
@@ -168,7 +171,7 @@ const HotdogClassificationHistory = ({
             </span>
           </button>
           <span className="hidden items-baseline gap-2 sm:flex">
-            {HOTDOG_CLASSIFICATION_HISTORY_TITLE}
+            {t('title')}
             {hotdogClassificationCount !== undefined && (
               <HotdogClassificationHistoryCount
                 hotdogClassificationCount={hotdogClassificationCount}
@@ -178,8 +181,8 @@ const HotdogClassificationHistory = ({
         </h2>
         {isHistoryMenuShown && (
           <OverflowMenu
-            triggerLabel="More history options"
-            itemList={[{ label: 'Delete my data', onSelect: openDeleteAllData }]}
+            triggerLabel={t('moreOptions')}
+            itemList={[{ label: t('deleteMyData'), onSelect: openDeleteAllData }]}
           />
         )}
       </div>

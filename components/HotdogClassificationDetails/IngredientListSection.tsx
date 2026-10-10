@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import DetailSection from './DetailSection';
 
 interface IngredientListSectionProps {
@@ -6,8 +8,10 @@ interface IngredientListSectionProps {
 }
 
 const IngredientListSection = ({ ingredientList, className }: IngredientListSectionProps) => {
+  const t = useTranslations('details');
+
   return (
-    <DetailSection title="What's in it" className={className}>
+    <DetailSection title={t('ingredients.title')} className={className}>
       <ul role="list" className="flex flex-wrap gap-2">
         {ingredientList.map((ingredient, ingredientIndex) => (
           <li

@@ -1,0 +1,22 @@
+{
+  "consentModal": {
+    "title": "Save your hotdog history?",
+    "description": "We'd like to set one cookie that keeps your photos and verdicts in this browser so you can look back later. Say no and everything still works — we just won't save anything. No tracking, no ads.",
+    "cookiePolicyLink": "Cookie policy",
+    "acceptAllButton": "Accept",
+    "rejectButton": "Reject"
+  },
+  "preferencesModal": {
+    "title": "Cookie settings",
+    "acceptAllButton": "Accept all",
+    "rejectAllButton": "Reject all",
+    "saveButton": "Save choices",
+    "closeIconLabel": "Close",
+    "essentialTitle": "Essential",
+    "essentialDescription": "Remembers your cookie choice (cc_cookie). Always on.",
+    "historyTitle": "History",
+    "historyDescription": "Keeps your photos and verdicts in this browser (hotdog_or_not_visitor_session). Turning it off erases everything we've saved.",
+    "deleteTitle": "Want everything gone?",
+    "deleteDescription": "Use “Delete my data” at the bottom of the page anytime."
+  }
+}

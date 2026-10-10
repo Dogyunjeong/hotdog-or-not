@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 import Spinner from '@/components/primitives/Spinner';
@@ -8,13 +9,15 @@ interface HotdogImagePreviewProps {
 }
 
 const HotdogImagePreview = ({ imagePreviewUrl, isBusy }: HotdogImagePreviewProps) => {
+  const t = useTranslations('classifier.preview');
+
   if (!imagePreviewUrl) {
     return (
       <div className="flex aspect-square w-full items-center justify-center rounded-card border-2 border-dashed border-border-strong bg-surface sm:aspect-[4/3]">
         <span aria-hidden className="text-6xl">
           🌭
         </span>
-        <span className="sr-only">No photo picked yet</span>
+        <span className="sr-only">{t('empty')}</span>
       </div>
     );
   }
@@ -22,7 +25,7 @@ const HotdogImagePreview = ({ imagePreviewUrl, isBusy }: HotdogImagePreviewProps
   return (
     <div className="relative aspect-square w-full overflow-hidden rounded-card bg-surface-muted sm:aspect-[4/3]">
       {/* Blob URLs can't go through the image optimizer. */}
-      <Image src={imagePreviewUrl} alt="Your photo" fill unoptimized className="object-contain" />
+      <Image src={imagePreviewUrl} alt={t('alt')} fill unoptimized className="object-contain" />
       {isBusy && (
         <div className="absolute inset-0 flex items-center justify-center bg-overlay-scrim text-on-overlay">
           <Spinner size="md" />

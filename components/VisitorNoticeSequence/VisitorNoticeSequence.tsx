@@ -1,11 +1,12 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 import OnboardingDialog from '@/components/Onboarding/OnboardingDialog';
 import { useVisitorOnboarding } from '@/hooks/useVisitorOnboarding';
+import { usePathname } from '@/i18n/navigation';
 
+/** Locale-agnostic: the i18n `usePathname` strips the `/ko` prefix. */
 const ONBOARDING_PATHNAME = '/';
 
 /**

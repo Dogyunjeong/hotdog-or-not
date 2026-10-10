@@ -1,0 +1,16 @@
+{
+  "backAriaLabel": "전체 사진으로 돌아가기",
+  "backLabel": "전체 사진",
+  "closeAriaLabel": "상세 정보 닫기",
+  "photoAlt": "{date}에 올린 사진",
+  "deleteButton": "이 사진 삭제",
+  "photoDeleted": "사진을 삭제했어요.",
+  "deletionDialog": {
+    "title": "이 사진을 삭제할까요?",
+    "description": "사진과 판정 결과가 영구적으로 삭제되며, 되돌릴 수 없어요.",
+    "confirm": "삭제",
+    "pendingConfirm": "삭제하는 중…",
+    "cancel": "취소",
+    "error": "사진을 삭제하지 못했어요. 아무것도 지워지지 않았으니 다시 시도해 주세요."
+  }
+}

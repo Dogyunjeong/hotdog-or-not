@@ -2,13 +2,13 @@ import type { HotdogTypes } from '@/shared/types';
 
 import ExpectedServerError from '../error/ExpectedServerError';
 import {
-  getHotdogImageValidationErrorMessage,
+  getHotdogImageValidationError,
   isHotdogImageMediaType,
-} from './getHotdogImageValidationErrorMessage';
+} from './getHotdogImageValidationError';
 
 /**
  * Server-side gate: validates an image's type/size and narrows its media type,
- * or throws a 400 `ExpectedServerError` with the user-facing message.
+ * or throws a 400 `ExpectedServerError` with the error code.
  */
 export const getValidatedHotdogImageMediaType = ({
   mediaType,
@@ -17,10 +17,12 @@ export const getValidatedHotdogImageMediaType = ({
   mediaType: string;
   byteSize: number;
 }): HotdogTypes.HotdogImageMediaType => {
-  const validationErrorMessage = getHotdogImageValidationErrorMessage({ mediaType, byteSize });
+  const validationError = getHotdogImageValidationError({ mediaType, byteSize });
 
-  if (validationErrorMessage || !isHotdogImageMediaType(mediaType)) {
-    throw new ExpectedServerError(validationErrorMessage);
+  if (validationError || !isHotdogImageMediaType(mediaType)) {
+    throw new ExpectedServerError({
+      errorCode: validationError?.errorCode ?? 'IMAGE_TYPE_UNSUPPORTED',
+    });
   }
   return mediaType;
 };

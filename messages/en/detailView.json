@@ -1,0 +1,16 @@
+{
+  "backAriaLabel": "Back to all photos",
+  "backLabel": "All photos",
+  "closeAriaLabel": "Close details",
+  "photoAlt": "Your photo from {date}",
+  "deleteButton": "Delete this photo",
+  "photoDeleted": "Photo deleted.",
+  "deletionDialog": {
+    "title": "Delete this photo?",
+    "description": "The photo and its verdict will be permanently erased. This can't be undone.",
+    "confirm": "Delete",
+    "pendingConfirm": "Deleting…",
+    "cancel": "Cancel",
+    "error": "We couldn't delete this photo. Nothing was removed — try again."
+  }
+}

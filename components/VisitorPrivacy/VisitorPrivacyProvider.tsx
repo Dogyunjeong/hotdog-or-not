@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
 
@@ -10,11 +11,6 @@ import { useHistoryConsent } from '@/hooks/useHistoryConsent';
 import { VisitorPrivacyContext, type VisitorPrivacyContextValue } from '@/hooks/useVisitorPrivacy';
 import DeleteAllDataDialog from './DeleteAllDataDialog';
 import HistoryRevokeDialog from './HistoryRevokeDialog';
-
-const ALL_DATA_ERASED_NOTICE = 'All gone. Your photos and verdicts were deleted.';
-const GUEST_DATA_ERASED_NOTICE = 'Done. Nothing saved in this browser remains.';
-const HISTORY_REVOKED_NOTICE = 'History is off and your data was erased.';
-const HISTORY_KEPT_NOTICE = 'History stays on.';
 
 /**
  * After an erase the page content resets, so focus goes to the page's h1 (tabIndex -1 on the
@@ -35,6 +31,7 @@ interface StatusNotice {
  * and off, "Delete my data", and one status toast. Read it with `useVisitorPrivacy()`.
  */
 const VisitorPrivacyProvider = ({ children }: { children: ReactNode }) => {
+  const t = useTranslations('privacy.notices');
   const [statusNotice, setStatusNotice] = useState<StatusNotice>();
   const [dataResetCount, setDataResetCount] = useState(0);
   const [isDeleteAllDataDialogOpen, setIsDeleteAllDataDialogOpen] = useState(false);
@@ -96,20 +93,20 @@ const VisitorPrivacyProvider = ({ children }: { children: ReactNode }) => {
   const handleAllDataErased = () => {
     closeDialogThenResetVisitorData({
       closeDialog: closeDeleteAllData,
-      erasedNotice: isHistoryDataSaved ? ALL_DATA_ERASED_NOTICE : GUEST_DATA_ERASED_NOTICE,
+      erasedNotice: isHistoryDataSaved ? t('allDataErased') : t('guestDataErased'),
     });
   };
 
   const handleHistoryRevokeErased = () => {
     closeDialogThenResetVisitorData({
       closeDialog: completeHistoryRevoke,
-      erasedNotice: HISTORY_REVOKED_NOTICE,
+      erasedNotice: t('historyRevoked'),
     });
   };
 
   const handleKeepHistory = () => {
     cancelHistoryRevoke();
-    showNotice(HISTORY_KEPT_NOTICE);
+    showNotice(t('historyKept'));
   };
 
   const visitorPrivacyContextValue = useMemo<VisitorPrivacyContextValue>(

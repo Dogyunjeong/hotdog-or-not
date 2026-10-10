@@ -42,7 +42,7 @@ const photoGpsCoordinates = { latitude: 51.5079, longitude: -0.0877 };
 const PHOTO_PLACE_NAME = 'London, England, United Kingdom';
 const EXPIRED_UPLOAD_ERROR = {
   httpStatusCode: 404,
-  message: 'That upload has expired. Please pick your photo again.',
+  errorCode: 'UPLOAD_EXPIRED',
 };
 
 const createHotdogClassificationService = ({
@@ -240,7 +240,7 @@ describe('HotdogClassificationService.classifyVisitorUploadedImage', () => {
       hotdogClassificationService.classifyVisitorUploadedImage({ ...visitor, tempImagePath }),
     ).rejects.toMatchObject({
       httpStatusCode: 400,
-      message: 'This photo is too large to save. Please try a smaller one.',
+      errorCode: 'IMAGE_TOO_LARGE_TO_SAVE',
     });
     expect(parse).not.toHaveBeenCalled();
     expect(uploadFile).not.toHaveBeenCalled();
@@ -506,6 +506,19 @@ describe('HotdogClassificationService.classifyGuestUploadedImage', () => {
       false,
     );
     expect(hasTempImage(tempImagePath)).toBe(false);
+  });
+
+  it('asks the model to write in the requested language', async () => {
+    const { hotdogClassificationService, parse, putTempImage } =
+      createHotdogClassificationService();
+    const tempImagePath = await putTempImage({
+      tempImagePath: createGuestHotdogImagePath({ mediaType: 'image/jpeg' }),
+    });
+
+    await hotdogClassificationService.classifyGuestUploadedImage({ tempImagePath, locale: 'ko' });
+
+    const [parseRequest] = parse.mock.calls[0];
+    expect(parseRequest.instructions).toContain('in Korean');
   });
 
   it("returns 404 for a visitor's upload path", async () => {

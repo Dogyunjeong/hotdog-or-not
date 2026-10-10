@@ -1,15 +1,17 @@
+import { useTranslations } from 'next-intl';
+
 import Spinner from '@/components/primitives/Spinner';
 import { useHotdogClassificationProgressMessage } from '@/hooks/useHotdogClassificationProgressMessage';
 
 type HotdogClassificationProgressStep = 'uploading' | 'classifying';
 
-const STILL_THINKING_MESSAGE = 'Still thinking — detailed checks can take a few extra seconds.';
-
 const HotdogImageUploadingProgress = () => {
+  const t = useTranslations('classifier.progress');
+
   return (
     <p className="flex items-center justify-center gap-2 text-foreground-muted">
       <Spinner size="sm" />
-      Uploading your photo…
+      {t('uploading')}
     </p>
   );
 };
@@ -19,6 +21,7 @@ const HotdogImageUploadingProgress = () => {
  * and the "still thinking" note once, never every rotation.
  */
 const HotdogImageCheckingProgress = () => {
+  const t = useTranslations('classifier.progress');
   const { announcedProgressMessage, rotatingProgressMessage, isStillThinking } =
     useHotdogClassificationProgressMessage();
 
@@ -29,7 +32,7 @@ const HotdogImageCheckingProgress = () => {
         <span aria-hidden>{rotatingProgressMessage}</span>
         <span className="sr-only">{announcedProgressMessage}</span>
       </p>
-      {isStillThinking && <p className="text-sm">{STILL_THINKING_MESSAGE}</p>}
+      {isStillThinking && <p className="text-sm">{t('stillThinking')}</p>}
     </div>
   );
 };

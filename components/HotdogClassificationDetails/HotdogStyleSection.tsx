@@ -1,7 +1,7 @@
 import type { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 
 import DetailSection from './DetailSection';
-import { formatHotdogCount } from './detailsFormat';
 
 interface HotdogStyleSectionProps {
   hotdogStyle: HotdogTypes.HotdogDetails['hotdogStyle'];
@@ -9,13 +9,15 @@ interface HotdogStyleSectionProps {
 }
 
 const HotdogStyleSection = ({ hotdogStyle, hotdogCount }: HotdogStyleSectionProps) => {
+  const t = useTranslations('details');
+
   return (
-    <DetailSection title="The style">
+    <DetailSection title={t('style.title')}>
       <div className="flex flex-col gap-1">
         <p className="font-semibold">{hotdogStyle.name}</p>
         <p className="text-sm text-foreground-muted">{hotdogStyle.description}</p>
       </div>
-      <p className="text-sm">{formatHotdogCount(hotdogCount)}</p>
+      <p className="text-sm">{t('style.hotdogCount', { count: hotdogCount })}</p>
     </DetailSection>
   );
 };

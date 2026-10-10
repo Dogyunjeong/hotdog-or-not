@@ -1,13 +1,11 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import ConfirmDialog from '@/components/primitives/ConfirmDialog';
 import { useVisitorDataDeletion } from '@/hooks/useVisitorDataDeletion';
 
-const ERASED_ITEM_LIST = [
-  'All your uploaded photos',
-  'All your verdicts and details',
-  'Your history session cookie',
-];
+const ERASED_ITEM_KEY_LIST = ['erasedPhotos', 'erasedVerdicts', 'erasedSessionCookie'] as const;
 
 interface DeleteAllDataDialogProps {
   isOpen: boolean;
@@ -17,15 +15,17 @@ interface DeleteAllDataDialogProps {
 }
 
 const HistoryEnabledDeleteAllDataDescription = () => {
+  const t = useTranslations('privacy.deleteAll');
+
   return (
     <>
-      <p>This permanently erases everything we&apos;ve saved for this browser:</p>
+      <p>{t('historyIntro')}</p>
       <ul className="list-disc space-y-1 pl-5">
-        {ERASED_ITEM_LIST.map((erasedItem) => (
-          <li key={erasedItem}>{erasedItem}</li>
+        {ERASED_ITEM_KEY_LIST.map((erasedItemKey) => (
+          <li key={erasedItemKey}>{t(erasedItemKey)}</li>
         ))}
       </ul>
-      <p>Your cookie choice stays, so we won&apos;t ask again. This can&apos;t be undone.</p>
+      <p>{t('historyOutro')}</p>
     </>
   );
 };
@@ -35,12 +35,9 @@ const HistoryEnabledDeleteAllDataDescription = () => {
  * turned off without confirming the erase) — the same erase removes it, or does nothing.
  */
 const GuestDeleteAllDataDescription = () => {
-  return (
-    <p>
-      History is off, so we aren&apos;t saving anything right now. If you saved photos in this
-      browser before, this permanently erases them.
-    </p>
-  );
+  const t = useTranslations('privacy.deleteAll');
+
+  return <p>{t('guestDescription')}</p>;
 };
 
 /** "Delete my data" (footer and history panel). */
@@ -50,6 +47,7 @@ const DeleteAllDataDialog = ({
   onErased,
   onClose,
 }: DeleteAllDataDialogProps) => {
+  const t = useTranslations('privacy.deleteAll');
   const {
     isVisitorDataDeletionPending,
     isVisitorDataDeletionFailed,
@@ -74,7 +72,7 @@ const DeleteAllDataDialog = ({
   return (
     <ConfirmDialog
       isOpen={isOpen}
-      title="Delete all your data?"
+      title={t('title')}
       description={
         isHistoryEnabled ? (
           <HistoryEnabledDeleteAllDataDescription />
@@ -82,16 +80,12 @@ const DeleteAllDataDialog = ({
           <GuestDeleteAllDataDescription />
         )
       }
-      confirmLabel="Delete everything"
-      pendingConfirmLabel="Deleting…"
+      confirmLabel={t('confirmLabel')}
+      pendingConfirmLabel={t('pendingConfirmLabel')}
       // "Keep my data" would imply we hold data for a guest.
-      cancelLabel={isHistoryEnabled ? 'Keep my data' : 'Cancel'}
+      cancelLabel={isHistoryEnabled ? t('keepLabel') : t('cancelLabel')}
       isPending={isVisitorDataDeletionPending}
-      errorMessage={
-        isVisitorDataDeletionFailed
-          ? "We couldn't delete your data. Nothing was removed, so it's safe to try again."
-          : undefined
-      }
+      errorMessage={isVisitorDataDeletionFailed ? t('error') : undefined}
       onConfirm={handleConfirm}
       onCancel={handleCancel}
     />

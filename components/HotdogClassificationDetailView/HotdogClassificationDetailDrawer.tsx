@@ -1,8 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import type { SavedHotdogClassificationRecord } from '@/hooks/useHotdogClassificationHistory';
 
-import { getHotdogClassificationDetailTitle } from '@/components/HotdogClassificationHistory/hotdogClassificationLabel';
+import { useHotdogClassificationLabel } from '@/components/HotdogClassificationHistory/hotdogClassificationLabel';
 import Button from '@/components/primitives/Button';
 import Drawer from '@/components/primitives/Drawer';
 
@@ -41,6 +43,9 @@ const HotdogClassificationDetailDrawer = ({
   onClose,
   onDeletionRequest,
 }: HotdogClassificationDetailDrawerProps) => {
+  const t = useTranslations('detailView');
+  const { getHotdogClassificationDetailTitle } = useHotdogClassificationLabel();
+
   return (
     <Drawer
       isOpen={hotdogClassificationRecord !== null}
@@ -56,7 +61,7 @@ const HotdogClassificationDetailDrawer = ({
           <Button
             variant="secondary"
             size="icon"
-            aria-label="Close details"
+            aria-label={t('closeAriaLabel')}
             onClick={onClose}
             className="shrink-0"
           >

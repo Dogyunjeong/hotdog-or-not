@@ -52,7 +52,7 @@ class HotdogImageUploadHandler {
     const parsedRequest = createHotdogImageUploadRequestSchema.safeParse(requestBody);
 
     if (!parsedRequest.success) {
-      throw new ExpectedServerError('Please choose a photo to check.');
+      throw new ExpectedServerError({ errorCode: 'PHOTO_REQUIRED' });
     }
     return parsedRequest.data;
   };

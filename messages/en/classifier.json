@@ -1,0 +1,38 @@
+{
+  "sectionLabel": "Check a photo",
+  "idle": "Pick a photo to get a verdict.",
+  "verdict": {
+    "heading": "Your verdict",
+    "hotdog": "Hotdog!",
+    "notHotdog": "Not hotdog<srOnly>.</srOnly>"
+  },
+  "preview": {
+    "empty": "No photo picked yet",
+    "alt": "Your photo"
+  },
+  "picker": {
+    "upload": "Upload a photo",
+    "chooseDifferent": "Choose a different photo",
+    "tryAnother": "Try another photo"
+  },
+  "progress": {
+    "uploading": "Uploading your photo…",
+    "checking": "Checking for hotdog…",
+    "squinting": "Squinting at the bun…",
+    "counting": "Counting the toppings…",
+    "guessing": "Guessing the calories (roughly)…",
+    "locating": "Working out where it's from…",
+    "stillThinking": "Still thinking — detailed checks can take a few extra seconds."
+  },
+  "failure": {
+    "retry": "Try again"
+  },
+  "guestNote": {
+    "historyOff": "History is off, so this result won't be saved.",
+    "enableFailed": "We couldn't turn on history right now.",
+    "historyOn": "History is on now. This result wasn't saved, but your next checks will be.",
+    "enabling": "Turning on…",
+    "retry": "Try again",
+    "enable": "Turn on history"
+  }
+}

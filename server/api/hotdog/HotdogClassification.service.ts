@@ -20,7 +20,7 @@ import {
   HOTDOG_IMAGE_THUMBNAIL_MEDIA_TYPE,
 } from './createHotdogImageThumbnail';
 import {
-  HOTDOG_CLASSIFICATION_INSTRUCTIONS,
+  createHotdogClassificationInstructions,
   HOTDOG_CLASSIFICATION_MODEL,
   HOTDOG_CLASSIFICATION_TEXT_FORMAT,
   type HotdogClassificationModelOutput,
@@ -38,12 +38,6 @@ import { SANITIZED_HOTDOG_IMAGE_MEDIA_TYPE, sanitizeHotdogImage } from './saniti
 
 type HotdogClassificationRow = Database['public']['Tables']['hotdog_classifications']['Row'];
 type HotdogClassificationInsert = Database['public']['Tables']['hotdog_classifications']['Insert'];
-
-/** Same message for "not yours" and "gone" so other sessions' files are never revealed. */
-const EXPIRED_UPLOAD_ERROR_MESSAGE = 'That upload has expired. Please pick your photo again.';
-
-const SANITIZED_IMAGE_TOO_LARGE_ERROR_MESSAGE =
-  'This photo is too large to save. Please try a smaller one.';
 
 /** Postgres unique violation: `original_image_path` is unique. */
 const UNIQUE_VIOLATION_ERROR_CODE = '23505';
@@ -112,17 +106,25 @@ class HotdogClassificationService {
     this._reverseGeocodingClient = reverseGeocodingClient;
   }
 
+  /** Same error for "not yours" and "gone" so other sessions' files are never revealed. */
   private _createExpiredUploadError = () => {
-    return new ExpectedServerError(EXPIRED_UPLOAD_ERROR_MESSAGE, HTTP_STATUS.NOT_FOUND);
+    return new ExpectedServerError({
+      errorCode: 'UPLOAD_EXPIRED',
+      httpStatusCode: HTTP_STATUS.NOT_FOUND,
+    });
   };
 
   /** One structured call. The model only ever sees the sanitized image (no EXIF, no GPS). */
-  private _askVisionModel = async (
-    sanitizedImageBuffer: Buffer,
-  ): Promise<HotdogClassificationModelOutput> => {
+  private _askVisionModel = async ({
+    sanitizedImageBuffer,
+    locale,
+  }: {
+    sanitizedImageBuffer: Buffer;
+    locale: HotdogTypes.HotdogClassificationLocale;
+  }): Promise<HotdogClassificationModelOutput> => {
     const parsedResponse = await this._openAIClient.responses.parse({
       model: HOTDOG_CLASSIFICATION_MODEL,
-      instructions: HOTDOG_CLASSIFICATION_INSTRUCTIONS,
+      instructions: createHotdogClassificationInstructions(locale),
       input: [
         {
           role: 'user',
@@ -196,9 +198,11 @@ class HotdogClassificationService {
   private _analyzeTempImage = async ({
     tempImagePath,
     tempImageFileInfo,
+    locale,
   }: {
     tempImagePath: string;
     tempImageFileInfo: TempImageFileInfo;
+    locale: HotdogTypes.HotdogClassificationLocale;
   }): Promise<AnalyzedHotdogImage> => {
     // The browser's claims at upload time aren't trusted; validate what was actually stored.
     getValidatedHotdogImageMediaType({
@@ -214,10 +218,10 @@ class HotdogClassificationService {
 
     // Checked before the paid model call: an image the bucket would reject can never be saved.
     if (sanitizedImageBuffer.byteLength > HotdogTypes.HOTDOG_IMAGE_MAX_BYTE_SIZE) {
-      throw new ExpectedServerError(SANITIZED_IMAGE_TOO_LARGE_ERROR_MESSAGE);
+      throw new ExpectedServerError({ errorCode: 'IMAGE_TOO_LARGE_TO_SAVE' });
     }
 
-    const modelOutput = await this._askVisionModel(sanitizedImageBuffer);
+    const modelOutput = await this._askVisionModel({ sanitizedImageBuffer, locale });
     const photoPlaceName = await this._findHotdogPhotoPlaceName({ modelOutput, gpsCoordinates });
     return {
       sanitizedImageBuffer,
@@ -251,12 +255,14 @@ class HotdogClassificationService {
   private _analyzeOwnedTempImage = async ({
     tempImagePath,
     tempImageFileInfo,
+    locale,
   }: {
     tempImagePath: string;
     tempImageFileInfo: TempImageFileInfo;
+    locale: HotdogTypes.HotdogClassificationLocale;
   }): Promise<AnalyzedHotdogImage> => {
     try {
-      return await this._analyzeTempImage({ tempImagePath, tempImageFileInfo });
+      return await this._analyzeTempImage({ tempImagePath, tempImageFileInfo, locale });
     } catch (error) {
       const isRetryableError =
         !(error instanceof ExpectedServerError) ||
@@ -453,10 +459,12 @@ class HotdogClassificationService {
     visitorSessionId,
     storageFolderId,
     tempImagePath,
+    locale = 'en',
   }: {
     visitorSessionId: string;
     storageFolderId: string;
     tempImagePath: string;
+    locale?: HotdogTypes.HotdogClassificationLocale;
   }): Promise<HotdogTypes.HotdogClassificationRecord> => {
     if (!isHotdogImagePathInStorageFolder({ hotdogImagePath: tempImagePath, storageFolderId })) {
       throw this._createExpiredUploadError();
@@ -486,6 +494,7 @@ class HotdogClassificationService {
     const analyzedHotdogImage = await this._analyzeOwnedTempImage({
       tempImagePath,
       tempImageFileInfo,
+      locale,
     });
     await this._storeHotdogImages({ ...storedImagePaths, analyzedHotdogImage });
     const hotdogClassificationRow = await this._insertHotdogClassificationRow({
@@ -510,8 +519,10 @@ class HotdogClassificationService {
    */
   public classifyGuestUploadedImage = async ({
     tempImagePath,
+    locale = 'en',
   }: {
     tempImagePath: string;
+    locale?: HotdogTypes.HotdogClassificationLocale;
   }): Promise<HotdogTypes.HotdogClassificationRecord> => {
     if (!isGuestHotdogImagePath(tempImagePath)) {
       throw this._createExpiredUploadError();
@@ -526,6 +537,7 @@ class HotdogClassificationService {
     const { hotdogClassification, details } = await this._analyzeOwnedTempImage({
       tempImagePath,
       tempImageFileInfo,
+      locale,
     });
     // The result can't be fetched again, so a failed delete must not turn it into an error.
     await this._deleteTempImageBestEffort(tempImagePath);

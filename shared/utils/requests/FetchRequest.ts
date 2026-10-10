@@ -20,7 +20,7 @@ type HttpMethod = 'GET' | 'POST' | 'DELETE';
 /**
  * Isomorphic JSON client built on `fetch` (browser, Node, Vercel functions).
  * - No response → `NetworkError`
- * - Non-2xx → `ExpectedServerError` carrying the API's `message` (empty when the body isn't
+ * - Non-2xx → `ExpectedServerError` carrying the API's `errorCode` and `message` (empty when the body isn't
  *   our JSON, e.g. a platform 502 page — callers then show their own friendly default)
  */
 class FetchRequest implements IRequest {
@@ -54,11 +54,12 @@ class FetchRequest implements IRequest {
 
     if (!response.ok) {
       const apiErrorResponse = responseData as SharedTypes.ApiErrorResponse | undefined;
-      throw new ExpectedServerError(
-        apiErrorResponse?.message ?? '',
-        response.status as HttpStatusCode,
-        apiErrorResponse?.errorData,
-      );
+      throw new ExpectedServerError({
+        errorCode: apiErrorResponse?.errorCode,
+        message: apiErrorResponse?.message ?? '',
+        httpStatusCode: response.status as HttpStatusCode,
+        errorData: apiErrorResponse?.errorData,
+      });
     }
     return { data: responseData as T };
   };

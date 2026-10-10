@@ -1,0 +1,23 @@
+{
+  "title": "Welcome to Hotdog or Not Hotdog",
+  "intro": "It only takes a second. Here's how it works:",
+  "steps": {
+    "upload": {
+      "title": "Upload a photo",
+      "description": "Pick any picture from your device."
+    },
+    "scoop": {
+      "title": "Get the full scoop",
+      "description": "Hotdog or not, plus a taste score, a nutrition guess and where it's probably from."
+    },
+    "historyOn": {
+      "title": "See your history",
+      "description": "Your checks are saved in this browser so you can look back anytime."
+    },
+    "historyOff": {
+      "title": "History is off",
+      "description": "Nothing gets saved. You can turn history on anytime from Cookie settings."
+    }
+  },
+  "confirmButton": "Got it, let's go"
+}

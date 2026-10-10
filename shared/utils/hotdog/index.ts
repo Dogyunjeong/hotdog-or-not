@@ -1,2 +1,2 @@
-export { getHotdogImageValidationErrorMessage } from './getHotdogImageValidationErrorMessage';
+export { getHotdogImageValidationError } from './getHotdogImageValidationError';
 export { getValidatedHotdogImageMediaType } from './getValidatedHotdogImageMediaType';

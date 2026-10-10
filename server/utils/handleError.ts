@@ -36,6 +36,7 @@ export const handleError = ({
   if (error instanceof ExpectedServerError) {
     const expectedErrorResponse: SharedTypes.ApiErrorResponse = {
       message: error.message || defaultMessage,
+      errorCode: error.errorCode,
       errorData: error.errorData,
     };
     return Response.json(expectedErrorResponse, { status: error.httpStatusCode });

@@ -4,11 +4,12 @@ import 'vanilla-cookieconsent/dist/cookieconsent.css';
 import './cookieConsentTheme.css';
 
 import { CookieConsentTypes } from '@/shared/types';
-import { usePathname } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useEffectEvent, useState } from 'react';
 import * as CookieConsent from 'vanilla-cookieconsent';
 
-import { cookieConsentConfig } from './cookieConsentConfig';
+import { usePathname } from '@/i18n/navigation';
+import { createCookieConsentConfig } from './cookieConsentConfig';
 import { getHistoryConsentDecision, type HistoryConsentDecision } from './historyCookieConsent';
 
 /** The banner links here, so the policy must stay readable (scrollable) while it's open. */
@@ -24,7 +25,7 @@ interface CookieConsentNoticeProps {
 }
 
 /**
- * Runs vanilla-cookieconsent once per page load; the library renders the banner (until it is
+ * Runs vanilla-cookieconsent once per page load, in the page's language; the library renders the banner (until it is
  * answered) and the Cookie settings modal, and reports the visitor's `history` choice.
  */
 const CookieConsentNotice = ({
@@ -36,6 +37,9 @@ const CookieConsentNotice = ({
   const handleBannerAnswered = useEffectEvent(onBannerAnswered);
   const handleHistoryConsentChanged = useEffectEvent(onHistoryConsentChanged);
   const pathname = usePathname();
+  const locale = useLocale();
+  const t = useTranslations('cookieConsent');
+  const getCookieConsentConfig = useEffectEvent(() => createCookieConsentConfig({ t, locale }));
   // The library reads this once, in `run()`, so it's decided by the landing page: the banner's
   // policy link is a full page load, but a later client navigation keeps the first choice.
   const [isPageInteractionDisabled] = useState(() => pathname !== COOKIE_POLICY_PATHNAME);
@@ -46,7 +50,7 @@ const CookieConsentNotice = ({
     let isBannerAnswered = false;
 
     void CookieConsent.run({
-      ...cookieConsentConfig,
+      ...getCookieConsentConfig(),
       disablePageInteraction: isPageInteractionDisabled,
       onFirstConsent: ({ cookie }) => {
         isBannerAnswered = true;

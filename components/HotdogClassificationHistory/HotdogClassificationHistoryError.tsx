@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import Button from '@/components/primitives/Button';
 import InlineAlert from '@/components/primitives/InlineAlert';
 
@@ -6,12 +8,14 @@ interface HotdogClassificationHistoryErrorProps {
 }
 
 const HotdogClassificationHistoryError = ({ onRetry }: HotdogClassificationHistoryErrorProps) => {
+  const t = useTranslations('history');
+
   return (
     <InlineAlert
-      message="We couldn't load your history right now."
+      message={t('error.message')}
       action={
         <Button variant="secondary" size="sm" onClick={onRetry}>
-          Try again
+          {t('error.retry')}
         </Button>
       }
     />

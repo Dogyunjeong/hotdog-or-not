@@ -1,0 +1,11 @@
+{
+  "appName": "핫도그일까 아닐까",
+  "appDescription": "사진을 올리면 핫도그인지 알려 드려요.",
+  "dismiss": "닫기",
+  "languageSwitcherLabel": "언어",
+  "languageName": {
+    "en": "English",
+    "ko": "한국어"
+  },
+  "tagline": "사진을 올려 주세요. 핫도그인지 알려 드릴게요."
+}

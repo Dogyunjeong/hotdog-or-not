@@ -223,4 +223,20 @@ describe('hotdog classification API', () => {
     expect(getVisitorCookieHeader()).toBeUndefined();
     expect(hotdogApi.resolveVisitorSession).not.toHaveBeenCalled();
   });
+
+  it('returns a stable error code for invalid requests and an unknown locale', async () => {
+    stubFetchWithHotdogApi(createHotdogApi(), {
+      consentCookieHeader: NECESSARY_ONLY_CONSENT_COOKIE,
+    });
+
+    await expect(
+      hotdogClassificationController.classifyUploadedImage({ tempImagePath: 'guest/a/b.jpg' }),
+    ).rejects.toMatchObject({ errorCode: 'UPLOAD_EXPIRED', httpStatusCode: 404 });
+    await expect(
+      hotdogClassificationController.classifyUploadedImage({
+        tempImagePath: 'guest/a/b.jpg',
+        locale: 'fr' as 'en',
+      }),
+    ).rejects.toMatchObject({ errorCode: 'PHOTO_REQUIRED', httpStatusCode: 400 });
+  });
 });

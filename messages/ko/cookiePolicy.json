@@ -1,0 +1,25 @@
+{
+  "metadataTitle": "쿠키 정책 · 핫도그일까 아닐까",
+  "backLink": "← 핫도그일까 아닐까로 돌아가기",
+  "heading": "쿠키 정책",
+  "summary": "전체 정책을 준비하는 동안 먼저 핵심만 간단히 안내해 드려요.",
+  "categories": {
+    "essential": {
+      "title": "필수 — 항상 켜짐",
+      "description": "쿠키 선택 내용을 기억해요. 약 6개월 동안 유지돼요."
+    },
+    "history": {
+      "title": "기록 — 동의하신 경우에만",
+      "description": "사진과 결과를 이 브라우저에 보관해요. 1년 동안 유지돼요. 끄면 저장된 데이터가 삭제돼요."
+    }
+  },
+  "notes": {
+    "locationRemoved": "사진을 저장하기 전에 위치 정보를 제거해요. 사진에 위치가 있더라도 정확한 장소는 저장하지 않고 도시나 지역만 남겨요.",
+    "openAiVerdict": "확인하는 사진은 결과를 얻기 위해 OpenAI로 전송돼요.",
+    "geocoding": "핫도그가 어디서 왔을지 추정하기 위해, 핫도그로 판정된 사진에 한해 대략적인 위치(약 1km 단위로 반올림)를 OpenStreetMap의 무료 지오코딩 서비스로 보내요.",
+    "noTracking": "쿠키를 추적이나 광고 목적으로 사용하지 않아요.",
+    "deleteAnytime": "“내 데이터 삭제”로 언제든 모든 데이터를 지울 수 있어요."
+  },
+  "changeCookieSettings": "쿠키 설정 변경",
+  "updateNotice": "전체 정책은 곧 이 페이지에 추가될 예정이에요."
+}

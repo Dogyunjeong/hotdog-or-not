@@ -1,9 +1,11 @@
-import Link, { type LinkProps } from 'next/link';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
+
+import { Link } from '@/i18n/navigation';
 
 import { getTextLinkClassName, type TextLinkVariant } from './textLinkClassName';
 
-interface TextLinkProps extends LinkProps<string> {
+/** Locale-aware: `href="/cookie-policy"` resolves to `/ko/cookie-policy` on Korean pages. */
+interface TextLinkProps extends Omit<ComponentProps<typeof Link>, 'className' | 'children'> {
   variant?: TextLinkVariant;
   className?: string;
   children: ReactNode;

@@ -1,6 +1,7 @@
 'use client';
 
 import type { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 
 import { useHotdogClassification } from '@/hooks/useHotdogClassification';
@@ -17,6 +18,7 @@ interface HotdogClassifierProps {
 }
 
 const HotdogClassifier = ({ onHotdogClassified }: HotdogClassifierProps) => {
+  const t = useTranslations('classifier');
   const { imagePreviewUrl, showImagePreview, clearImagePreview } = useImagePreviewUrl();
   const { hotdogClassificationState, classifyImage, retryHotdogClassification } =
     useHotdogClassification({ onHotdogClassified });
@@ -45,7 +47,7 @@ const HotdogClassifier = ({ onHotdogClassified }: HotdogClassifierProps) => {
   };
 
   return (
-    <section aria-label="Check a photo" className="flex flex-col gap-4">
+    <section aria-label={t('sectionLabel')} className="flex flex-col gap-4">
       <HotdogImagePreview imagePreviewUrl={imagePreviewUrl} isBusy={isHotdogClassificationBusy} />
       <HotdogClassificationStatus
         hotdogClassificationState={hotdogClassificationState}

@@ -18,10 +18,7 @@ const ACCEPTED_DECODED_IMAGE_FORMAT_LIST = ['jpeg', 'png', 'gif', 'webp'];
  */
 export const SANITIZED_HOTDOG_IMAGE_MEDIA_TYPE = 'image/webp';
 
-const UNREADABLE_IMAGE_ERROR_MESSAGE =
-  "We couldn't read that photo. Please try a different JPEG, PNG, GIF, or WebP image.";
-
-const createUnreadableImageError = () => new ExpectedServerError(UNREADABLE_IMAGE_ERROR_MESSAGE);
+const createUnreadableImageError = () => new ExpectedServerError({ errorCode: 'IMAGE_UNREADABLE' });
 
 /**
  * Decodes and re-encodes the image as WebP so no metadata survives (EXIF, GPS, XMP, ...):

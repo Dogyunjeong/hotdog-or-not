@@ -1,0 +1,32 @@
+{
+  "title": "내 기록",
+  "photoCount": "{count, plural, other {사진 #장}}",
+  "loading": "기록을 불러오는 중이에요…",
+  "enabling": "기록을 켜는 중이에요…",
+  "moreOptions": "기록 더보기 옵션",
+  "deleteMyData": "내 데이터 삭제",
+  "recentLimit": "최근 사진 {limit}장을 보여 드려요.",
+  "verdict": {
+    "hotdog": "핫도그",
+    "notHotdog": "핫도그 아님"
+  },
+  "detailTitle": "{verdict} · {date}",
+  "photoUnavailable": "사진을 더 이상 볼 수 없어요",
+  "empty": {
+    "title": "아직 사진이 없어요",
+    "description": "첫 사진을 올리면 판정 결과가 여기에 나타나요."
+  },
+  "error": {
+    "message": "지금은 기록을 불러오지 못했어요.",
+    "retry": "다시 시도"
+  },
+  "guest": {
+    "enableFailed": "지금은 기록을 켜지 못했어요.",
+    "retry": "다시 시도",
+    "title": "기록이 꺼져 있어요",
+    "description": "아무것도 저장하지 않기로 하셔서, 페이지를 떠나면 판정 결과가 사라져요. 기록을 켜면 사진과 결과를 이 브라우저에 보관할 수 있어요.",
+    "enable": "기록 켜기",
+    "cookieSettings": "쿠키 설정",
+    "note": "기록을 켜기 전에 확인한 사진은 저장되지 않아요."
+  }
+}

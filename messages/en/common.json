@@ -1,0 +1,11 @@
+{
+  "appName": "Hotdog or Not Hotdog",
+  "appDescription": "Upload a photo and find out if it's a hotdog.",
+  "dismiss": "Dismiss",
+  "languageSwitcherLabel": "Language",
+  "languageName": {
+    "en": "English",
+    "ko": "한국어"
+  },
+  "tagline": "Upload a photo. We'll tell you."
+}

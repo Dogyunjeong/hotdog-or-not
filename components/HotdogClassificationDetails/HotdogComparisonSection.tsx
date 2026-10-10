@@ -1,15 +1,10 @@
 import type { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 
 import StatTable from '@/components/primitives/StatTable';
 
 import DetailSection from './DetailSection';
-import {
-  formatHotdogNutritionValue,
-  HOTDOG_NUTRITION_METRIC_LABEL,
-  NUTRIENT_COLUMN_LABEL,
-} from './detailsFormat';
-
-const WINNER_SR_SUFFIX = ', wins';
+import { useHotdogNutritionFormat } from './detailsFormat';
 
 interface HotdogComparisonOverallWinnerProps {
   overallWinner: HotdogTypes.HotdogComparisonWinner;
@@ -20,17 +15,23 @@ const HotdogComparisonOverallWinner = ({
   overallWinner,
   subjectName,
 }: HotdogComparisonOverallWinnerProps) => {
+  const t = useTranslations('details');
+
   switch (overallWinner) {
     case 'hotdog':
       return (
         <p className="font-semibold">
-          Winner: <span aria-hidden>🌭 </span>the hotdog
+          {t.rich('comparison.winnerHotdog', {
+            emoji: () => <span aria-hidden>🌭 </span>,
+          })}
         </p>
       );
     case 'subject':
-      return <p className="font-semibold">Winner: {subjectName}</p>;
+      return (
+        <p className="font-semibold">{t('comparison.winnerSubject', { subject: subjectName })}</p>
+      );
     case 'tie':
-      return <p className="font-semibold">It&apos;s a tie.</p>;
+      return <p className="font-semibold">{t('comparison.tie')}</p>;
   }
 };
 
@@ -43,8 +44,12 @@ const HotdogComparisonSection = ({
   hotdogComparison,
   subjectName,
 }: HotdogComparisonSectionProps) => {
+  const t = useTranslations('details');
+  const { getNutrientColumnLabel, getNutritionMetricLabel, formatNutritionValue } =
+    useHotdogNutritionFormat();
+
   return (
-    <DetailSection title={`Hotdog vs. ${subjectName}`}>
+    <DetailSection title={t('comparison.title', { subject: subjectName })}>
       <div className="flex flex-col gap-1">
         {hotdogComparison.verdictLine && <p>{hotdogComparison.verdictLine}</p>}
         <HotdogComparisonOverallWinner
@@ -53,31 +58,29 @@ const HotdogComparisonSection = ({
         />
       </div>
       <StatTable
-        caption="Lower calories, fat, carbs and sodium win. More protein wins."
+        caption={t('comparison.caption')}
         isCaptionVisible
-        columnHeaderList={['', 'Avg. hotdog', subjectName]}
-        rowHeaderLabel={NUTRIENT_COLUMN_LABEL}
+        columnHeaderList={['', t('comparison.averageHotdog'), subjectName]}
+        rowHeaderLabel={getNutrientColumnLabel()}
         rowList={hotdogComparison.metricList.map(
           ({ metric, hotdogValue, subjectValue, winner }) => ({
-            header: HOTDOG_NUTRITION_METRIC_LABEL[metric],
+            header: getNutritionMetricLabel(metric),
             cellList: [
               {
-                value: formatHotdogNutritionValue(metric, hotdogValue),
+                value: formatNutritionValue(metric, hotdogValue),
                 isHighlighted: winner === 'hotdog',
-                srSuffix: WINNER_SR_SUFFIX,
+                srSuffix: t('comparison.winnerSuffix'),
               },
               {
-                value: formatHotdogNutritionValue(metric, subjectValue),
+                value: formatNutritionValue(metric, subjectValue),
                 isHighlighted: winner === 'subject',
-                srSuffix: WINNER_SR_SUFFIX,
+                srSuffix: t('comparison.winnerSuffix'),
               },
             ],
           }),
         )}
       />
-      <p className="text-xs text-foreground-muted">
-        Compared with an average hotdog. Rough estimates.
-      </p>
+      <p className="text-xs text-foreground-muted">{t('comparison.disclaimer')}</p>
     </DetailSection>
   );
 };

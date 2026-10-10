@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { KeyboardEvent } from 'react';
 
 import type { SavedHotdogClassificationRecord } from '@/hooks/useHotdogClassificationHistory';
@@ -22,6 +23,8 @@ const HotdogClassificationDetailPanel = ({
   onBack,
   onDeletionRequest,
 }: HotdogClassificationDetailPanelProps) => {
+  const t = useTranslations('detailView');
+
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.key !== 'Escape') {
       return;
@@ -36,8 +39,8 @@ const HotdogClassificationDetailPanel = ({
       className="flex flex-col gap-2"
     >
       <div className="sticky top-0 z-10 border-b border-border bg-surface pt-4 pb-2">
-        <Button variant="secondary" size="sm" aria-label="Back to all photos" onClick={onBack}>
-          <span aria-hidden>←</span> All photos
+        <Button variant="secondary" size="sm" aria-label={t('backAriaLabel')} onClick={onBack}>
+          <span aria-hidden>←</span> {t('backLabel')}
         </Button>
       </div>
       <HotdogClassificationDetailView

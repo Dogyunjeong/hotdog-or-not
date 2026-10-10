@@ -1,39 +1,18 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { type SyntheticEvent, useEffect, useRef } from 'react';
 
 import Button from '@/components/primitives/Button';
 import OnboardingStep from './OnboardingStep';
 
-interface OnboardingStepContent {
-  title: string;
-  description: string;
-}
+type OnboardingStepKey = 'upload' | 'scoop' | 'historyOn' | 'historyOff';
 
-const SHARED_ONBOARDING_STEP_LIST: OnboardingStepContent[] = [
-  { title: 'Upload a photo', description: 'Pick any picture from your device.' },
-  {
-    title: 'Get the full scoop',
-    description:
-      "Hotdog or not, plus a taste score, a nutrition guess and where it's probably from.",
-  },
-];
-
-const HISTORY_ENABLED_ONBOARDING_STEP: OnboardingStepContent = {
-  title: 'See your history',
-  description: 'Your checks are saved in this browser so you can look back anytime.',
-};
-
-const GUEST_ONBOARDING_STEP: OnboardingStepContent = {
-  title: 'History is off',
-  description: 'Nothing gets saved. You can turn history on anytime from Cookie settings.',
-};
-
-const getOnboardingStepList = (isHistoryEnabled: boolean) => {
+const getOnboardingStepKeyList = (isHistoryEnabled: boolean): OnboardingStepKey[] => {
   if (isHistoryEnabled) {
-    return [...SHARED_ONBOARDING_STEP_LIST, HISTORY_ENABLED_ONBOARDING_STEP];
+    return ['upload', 'scoop', 'historyOn'];
   }
-  return [...SHARED_ONBOARDING_STEP_LIST, GUEST_ONBOARDING_STEP];
+  return ['upload', 'scoop', 'historyOff'];
 };
 
 interface OnboardingDialogProps {
@@ -47,6 +26,7 @@ interface OnboardingDialogProps {
  * Backdrop clicks do not close it; Esc or a browser-initiated close counts as "Got it".
  */
 const OnboardingDialog = ({ isHistoryEnabled, onComplete }: OnboardingDialogProps) => {
+  const t = useTranslations('onboarding');
   const onboardingDialogRef = useRef<HTMLDialogElement>(null);
   // Esc can fire both `cancel` and `close`; complete (and POST) only once.
   const isOnboardingCompletedRef = useRef(false);
@@ -85,22 +65,24 @@ const OnboardingDialog = ({ isHistoryEnabled, onComplete }: OnboardingDialogProp
       <div className="flex flex-col gap-6">
         <div className="space-y-2">
           <h2 id="onboarding-dialog-title" className="text-xl font-bold tracking-tight">
-            Welcome to Hotdog or Not Hotdog
+            {t('title')}
           </h2>
-          <p className="text-foreground-muted">It only takes a second. Here&apos;s how it works:</p>
+          <p className="text-foreground-muted">{t('intro')}</p>
         </div>
         <ol className="flex flex-col gap-4">
-          {getOnboardingStepList(isHistoryEnabled).map((onboardingStep, onboardingStepIndex) => (
-            <OnboardingStep
-              key={onboardingStep.title}
-              stepNumber={onboardingStepIndex + 1}
-              title={onboardingStep.title}
-              description={onboardingStep.description}
-            />
-          ))}
+          {getOnboardingStepKeyList(isHistoryEnabled).map(
+            (onboardingStepKey, onboardingStepIndex) => (
+              <OnboardingStep
+                key={onboardingStepKey}
+                stepNumber={onboardingStepIndex + 1}
+                title={t(`steps.${onboardingStepKey}.title`)}
+                description={t(`steps.${onboardingStepKey}.description`)}
+              />
+            ),
+          )}
         </ol>
         <Button variant="primary" className="w-full" autoFocus onClick={completeOnboardingOnce}>
-          Got it, let&apos;s go
+          {t('confirmButton')}
         </Button>
       </div>
     </dialog>

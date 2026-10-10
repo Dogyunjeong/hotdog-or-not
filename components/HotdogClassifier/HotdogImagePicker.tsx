@@ -1,4 +1,5 @@
 import { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 import type { Ref } from 'react';
 
 import type { ButtonVariant } from '@/components/primitives/buttonClassName';
@@ -9,20 +10,22 @@ const ACCEPTED_IMAGE_MEDIA_TYPES = HotdogTypes.HOTDOG_IMAGE_MEDIA_TYPE_LIST.join
 
 type HotdogClassificationStateStatus = HotdogClassificationState['status'];
 
+type HotdogImagePickerLabelKey = 'upload' | 'chooseDifferent' | 'tryAnother';
+
 const getHotdogImagePickerAppearance = (
   status: HotdogClassificationStateStatus,
-): { label: string; variant: ButtonVariant } => {
+): { labelKey: HotdogImagePickerLabelKey; variant: ButtonVariant } => {
   switch (status) {
     case 'idle':
-      return { label: 'Upload a photo', variant: 'primary' };
+      return { labelKey: 'upload', variant: 'primary' };
     case 'uploading':
     case 'classifying':
       // Stays enabled: a new pick replaces the one in progress.
-      return { label: 'Choose a different photo', variant: 'secondary' };
+      return { labelKey: 'chooseDifferent', variant: 'secondary' };
     case 'classified':
-      return { label: 'Try another photo', variant: 'primary' };
+      return { labelKey: 'tryAnother', variant: 'primary' };
     case 'failed':
-      return { label: 'Choose a different photo', variant: 'primary' };
+      return { labelKey: 'chooseDifferent', variant: 'primary' };
   }
 };
 
@@ -39,7 +42,8 @@ const HotdogImagePicker = ({
   inputRef,
   onImagePick,
 }: HotdogImagePickerProps) => {
-  const { label, variant } = getHotdogImagePickerAppearance(status);
+  const t = useTranslations('classifier.picker');
+  const { labelKey, variant } = getHotdogImagePickerAppearance(status);
 
   return (
     <FilePickerButton
@@ -50,7 +54,7 @@ const HotdogImagePicker = ({
       isDisabled={isDisabled}
       className="w-full"
     >
-      {label}
+      {t(labelKey)}
     </FilePickerButton>
   );
 };

@@ -1,4 +1,5 @@
 import type { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 
 import DetailSection from './DetailSection';
 
@@ -7,6 +8,7 @@ interface FoodBadgeProps {
 }
 
 const FoodBadge = ({ isFood }: FoodBadgeProps) => {
+  const t = useTranslations('details');
   const foodBadgeClassName = isFood
     ? 'bg-accent-soft text-accent-soft-foreground'
     : 'bg-surface-muted text-foreground-muted';
@@ -15,7 +17,7 @@ const FoodBadge = ({ isFood }: FoodBadgeProps) => {
     <span
       className={`shrink-0 rounded-control px-2 py-0.5 text-xs font-semibold ${foodBadgeClassName}`}
     >
-      {isFood ? 'Food' : 'Not food'}
+      {isFood ? t('notHotdog.food') : t('notHotdog.notFood')}
     </span>
   );
 };
@@ -32,8 +34,10 @@ const NotHotdogSubjectSection = ({
   isFood,
   missingNutritionMessage,
 }: NotHotdogSubjectSectionProps) => {
+  const t = useTranslations('details');
+
   return (
-    <DetailSection title="What we see">
+    <DetailSection title={t('notHotdog.subjectTitle')}>
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
           <p className="font-semibold">{subject.name}</p>

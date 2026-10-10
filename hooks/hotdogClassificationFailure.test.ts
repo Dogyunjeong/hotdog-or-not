@@ -13,20 +13,25 @@ describe('createHotdogClassificationFailure', () => {
 
     expect(toFailure('classifying', new NetworkError(new TypeError('fetch failed')))).toEqual({
       status: 'failed',
-      errorMessage: 'You seem to be offline. Check your connection and try again.',
+      errorKey: 'OFFLINE',
       canRetry: true,
     });
     expect(
-      toFailure('classifying', new ExpectedServerError('That upload has expired.', 404)),
-    ).toEqual({ status: 'failed', errorMessage: 'That upload has expired.', canRetry: false });
-    expect(toFailure('classifying', new ExpectedServerError('', 500))).toEqual({
+      toFailure(
+        'classifying',
+        new ExpectedServerError({ errorCode: 'UPLOAD_EXPIRED', httpStatusCode: 404 }),
+      ),
+    ).toEqual({ status: 'failed', errorKey: 'UPLOAD_EXPIRED', canRetry: false });
+    expect(toFailure('classifying', new ExpectedServerError({ httpStatusCode: 500 }))).toEqual({
       status: 'failed',
-      errorMessage: "We couldn't check your image right now. Please try again in a moment.",
+      errorKey: 'CLASSIFICATION_FAILED',
       canRetry: true,
     });
-    expect(toFailure('uploadingImage', new ExpectedServerError('Payload too large', 400))).toEqual({
+    expect(
+      toFailure('uploadingImage', new ExpectedServerError({ message: 'Payload too large' })),
+    ).toEqual({
       status: 'failed',
-      errorMessage: "We couldn't upload your photo. Please try again.",
+      errorKey: 'UPLOAD_FAILED',
       canRetry: true,
     });
   });

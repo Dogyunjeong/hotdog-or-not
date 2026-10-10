@@ -23,8 +23,15 @@ export interface HotdogClassificationRecord extends HotdogClassification {
   details: HotdogClassificationDetails | null;
 }
 
+/** Languages the model can write its answer in (matches the app locales). */
+export const HOTDOG_CLASSIFICATION_LOCALE_LIST = ['en', 'ko'] as const;
+
+export type HotdogClassificationLocale = (typeof HOTDOG_CLASSIFICATION_LOCALE_LIST)[number];
+
 export interface ClassifyUploadedHotdogImageRequest {
   tempImagePath: string;
+  /** Language of `reason` and the free-text detail fields. Defaults to `en`. */
+  locale?: HotdogClassificationLocale;
 }
 
 export interface HotdogClassificationListResponse {

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 const ImageOffIcon = () => {
@@ -47,15 +48,15 @@ const PHOTO_PIXEL_SIZE: Record<HotdogClassificationPhotoSize, { width: number; h
   hero: { width: 1600, height: 1200 },
 };
 
-const PHOTO_UNAVAILABLE_LABEL = 'Photo no longer available';
-
 const HotdogClassificationPhotoFallback = ({ size }: { size: HotdogClassificationPhotoSize }) => {
+  const t = useTranslations('history');
+
   return (
     <div
       className={`flex flex-col items-center justify-center gap-2 bg-surface-muted text-foreground-muted ${PHOTO_FRAME_CLASS_NAME[size]}`}
     >
       <ImageOffIcon />
-      {size === 'hero' && <p className="text-sm">{PHOTO_UNAVAILABLE_LABEL}</p>}
+      {size === 'hero' && <p className="text-sm">{t('photoUnavailable')}</p>}
     </div>
   );
 };

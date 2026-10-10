@@ -1,10 +1,17 @@
+import { HotdogTypes, type SharedTypes } from '@/shared/types';
 import { ExpectedServerError, NetworkError } from '@/shared/utils/error';
 
 export type HotdogClassificationStep = 'creatingUploadSession' | 'uploadingImage' | 'classifying';
 
+/** Keys of the `errors` messages: API codes plus the client-only fallbacks. */
+export type HotdogClassificationErrorKey =
+  SharedTypes.ApiErrorCode | 'UPLOAD_FAILED' | 'CLASSIFICATION_FAILED' | 'OFFLINE';
+
+/** Carries a translation key (render it with `useApiErrorMessage`), never display text. */
 export interface HotdogClassificationFailure {
   status: 'failed';
-  errorMessage: string;
+  errorKey: HotdogClassificationErrorKey;
+  errorValues?: SharedTypes.ApiErrorValues;
   canRetry: boolean;
 }
 
@@ -27,29 +34,32 @@ export const runHotdogClassificationStep = <T>(
   });
 };
 
-const UPLOAD_ERROR_MESSAGE = "We couldn't upload your photo. Please try again.";
-const CLASSIFICATION_ERROR_MESSAGE =
-  "We couldn't check your image right now. Please try again in a moment.";
-const OFFLINE_ERROR_MESSAGE = 'You seem to be offline. Check your connection and try again.';
-
 const isOfflineError = (error: unknown) => {
   return error instanceof NetworkError || navigator.onLine === false;
 };
 
+const getApiErrorValues = (errorCode: SharedTypes.ApiErrorCode) => {
+  if (errorCode === 'IMAGE_TOO_LARGE') {
+    return { maxMegabytes: HotdogTypes.HOTDOG_IMAGE_MAX_MEGABYTE_SIZE };
+  }
+  return undefined;
+};
+
 /**
- * API errors carry a friendly message (empty when the body wasn't JSON). A 4xx (invalid photo,
+ * API errors carry a stable code (absent when the body wasn't our JSON). A 4xx (invalid photo,
  * expired upload) won't succeed on a repeat, so only server-side failures are retryable.
  */
 const createApiFailure = (
   error: unknown,
-  defaultErrorMessage: string,
+  defaultErrorKey: HotdogClassificationErrorKey,
 ): HotdogClassificationFailure => {
   if (!(error instanceof ExpectedServerError)) {
-    return { status: 'failed', errorMessage: defaultErrorMessage, canRetry: true };
+    return { status: 'failed', errorKey: defaultErrorKey, canRetry: true };
   }
   return {
     status: 'failed',
-    errorMessage: error.message || defaultErrorMessage,
+    errorKey: error.errorCode ?? defaultErrorKey,
+    errorValues: error.errorCode && getApiErrorValues(error.errorCode),
     canRetry: error.httpStatusCode >= ExpectedServerError.HTTP_STATUS.INTERNAL_ERROR,
   };
 };
@@ -60,17 +70,17 @@ export const createHotdogClassificationFailure = (
   const { failedStep, cause } = stepError;
 
   if (isOfflineError(cause)) {
-    return { status: 'failed', errorMessage: OFFLINE_ERROR_MESSAGE, canRetry: true };
+    return { status: 'failed', errorKey: 'OFFLINE', canRetry: true };
   }
 
   switch (failedStep) {
     case 'creatingUploadSession':
-      return createApiFailure(cause, UPLOAD_ERROR_MESSAGE);
+      return createApiFailure(cause, 'UPLOAD_FAILED');
     case 'uploadingImage':
       // Storage errors aren't user-friendly; a retry starts a fresh upload session.
-      return { status: 'failed', errorMessage: UPLOAD_ERROR_MESSAGE, canRetry: true };
+      return { status: 'failed', errorKey: 'UPLOAD_FAILED', canRetry: true };
     case 'classifying':
-      return createApiFailure(cause, CLASSIFICATION_ERROR_MESSAGE);
+      return createApiFailure(cause, 'CLASSIFICATION_FAILED');
   }
 };
 

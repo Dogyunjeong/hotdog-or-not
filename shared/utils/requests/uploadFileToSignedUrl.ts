@@ -1,9 +1,6 @@
 import ExpectedServerError, { HTTP_STATUS } from '../error/ExpectedServerError';
 import NetworkError from '../error/NetworkError';
 
-const DEFAULT_UPLOAD_ERROR_MESSAGE =
-  'We could not upload your image right now. Please try again in a moment.';
-
 /**
  * PUTs a file to a storage signed upload URL (absolute, not under `/api`).
  * Storage rejects wrong types/sizes itself; those surface as one friendly message.
@@ -29,8 +26,10 @@ export const uploadFileToSignedUrl = async ({
   });
 
   if (!response.ok) {
-    throw new ExpectedServerError(DEFAULT_UPLOAD_ERROR_MESSAGE, HTTP_STATUS.BAD_REQUEST, {
-      storageStatus: response.status,
+    throw new ExpectedServerError({
+      errorCode: 'UPLOAD_FAILED',
+      httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+      errorData: { storageStatus: response.status },
     });
   }
 };

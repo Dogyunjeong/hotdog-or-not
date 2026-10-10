@@ -1,3 +1,6 @@
+import { useTranslations } from 'next-intl';
+
+import { useApiErrorMessage } from '@/hooks/useApiErrorMessage';
 import type { HotdogClassificationState } from '@/hooks/useHotdogClassification';
 
 import HotdogClassificationFailure from './HotdogClassificationFailure';
@@ -14,6 +17,9 @@ const HotdogClassificationStatusContent = ({
   hotdogClassificationState,
   onRetry,
 }: HotdogClassificationStatusProps) => {
+  const t = useTranslations('classifier.verdict');
+  const getErrorMessage = useApiErrorMessage();
+
   switch (hotdogClassificationState.status) {
     case 'idle':
       return <HotdogClassificationIdle />;
@@ -23,7 +29,7 @@ const HotdogClassificationStatusContent = ({
     case 'classified':
       return (
         <>
-          <h2 className="sr-only">Your verdict</h2>
+          <h2 className="sr-only">{t('heading')}</h2>
           <HotdogVerdict
             hotdogClassificationRecord={hotdogClassificationState.hotdogClassificationRecord}
           />
@@ -32,7 +38,10 @@ const HotdogClassificationStatusContent = ({
     case 'failed':
       return (
         <HotdogClassificationFailure
-          errorMessage={hotdogClassificationState.errorMessage}
+          errorMessage={getErrorMessage({
+            errorKey: hotdogClassificationState.errorKey,
+            errorValues: hotdogClassificationState.errorValues,
+          })}
           canRetry={hotdogClassificationState.canRetry}
           onRetry={onRetry}
         />

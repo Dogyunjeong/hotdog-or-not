@@ -1,0 +1,25 @@
+{
+  "metadataTitle": "Cookie policy · Hotdog or Not Hotdog",
+  "backLink": "← Back to Hotdog or Not Hotdog",
+  "heading": "Cookie policy",
+  "summary": "Here's the short version while we finish the full policy.",
+  "categories": {
+    "essential": {
+      "title": "Essential — always on",
+      "description": "Remembers your cookie choice. Lasts about 6 months."
+    },
+    "history": {
+      "title": "History — only if you accept",
+      "description": "Keeps your photos and verdicts in this browser. Lasts 1 year. Turning it off erases your saved data."
+    }
+  },
+  "notes": {
+    "locationRemoved": "We remove location data from photos before saving them. If your photo has a location, we keep only the city or region, never the exact spot.",
+    "openAiVerdict": "Photos you check are sent to OpenAI to get the verdict.",
+    "geocoding": "To guess where a hotdog is from, we send the photo's approximate location (rounded to about 1 km) to OpenStreetMap's free geocoding service — only for photos that turn out to be hotdogs.",
+    "noTracking": "We don't use cookies for tracking or advertising.",
+    "deleteAnytime": "You can delete everything anytime with “Delete my data”."
+  },
+  "changeCookieSettings": "Change cookie settings",
+  "updateNotice": "This page will be updated with our full policy soon."
+}

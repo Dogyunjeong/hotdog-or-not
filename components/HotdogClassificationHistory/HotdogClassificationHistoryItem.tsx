@@ -5,7 +5,7 @@ import { FOCUS_RING_CLASS_NAME } from '@/components/primitives/focusRing';
 import HotdogClassificationHistoryItemTitle from './HotdogClassificationHistoryItemTitle';
 import HotdogClassificationPhoto from './HotdogClassificationPhoto';
 import HotdogClassificationVerdictBadge from './HotdogClassificationVerdictBadge';
-import { formatHotdogClassificationCreatedAt } from './hotdogClassificationLabel';
+import { useHotdogClassificationLabel } from './hotdogClassificationLabel';
 
 /** DOM id of a card's button, so focus can return to it after the details close. */
 export const getHotdogClassificationHistoryItemElementId = (hotdogClassificationId: string) => {
@@ -23,6 +23,7 @@ const HotdogClassificationHistoryItem = ({
   isNewHotdogClassification,
   onHotdogClassificationSelect,
 }: HotdogClassificationHistoryItemProps) => {
+  const { formatHotdogClassificationCreatedAt } = useHotdogClassificationLabel();
   const { id, isHotdog, thumbnailImageUrl, createdAt } = hotdogClassificationRecord;
 
   return (

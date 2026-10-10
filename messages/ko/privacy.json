@@ -1,0 +1,31 @@
+{
+  "deleteAll": {
+    "title": "내 데이터를 모두 삭제할까요?",
+    "historyIntro": "이 브라우저에 저장된 모든 데이터가 영구적으로 삭제돼요:",
+    "erasedPhotos": "업로드한 모든 사진",
+    "erasedVerdicts": "모든 판정 결과와 상세 정보",
+    "erasedSessionCookie": "기록용 세션 쿠키",
+    "historyOutro": "쿠키 선택 내용은 그대로 유지되어 다시 묻지 않아요. 삭제한 데이터는 되돌릴 수 없어요.",
+    "guestDescription": "기록이 꺼져 있어서 지금은 아무것도 저장하고 있지 않아요. 전에 이 브라우저에 저장한 사진이 있다면 영구적으로 삭제돼요.",
+    "confirmLabel": "모두 삭제",
+    "pendingConfirmLabel": "삭제하는 중…",
+    "keepLabel": "데이터 유지",
+    "cancelLabel": "취소",
+    "error": "데이터를 삭제하지 못했어요. 아무것도 지워지지 않았으니 다시 시도해 주세요."
+  },
+  "historyRevoke": {
+    "title": "기록을 끌까요?",
+    "description": "기록을 끄면 이 브라우저에 저장된 모든 사진, 판정 결과, 기록 세션이 삭제돼요. 삭제한 데이터는 되돌릴 수 없어요.",
+    "confirmLabel": "끄고 삭제",
+    "pendingConfirmLabel": "삭제하는 중…",
+    "cancelLabel": "기록 계속 켜 두기",
+    "error": "데이터를 삭제하지 못해서 기록은 그대로 켜져 있어요. 다시 시도해 주세요."
+  },
+  "notices": {
+    "allDataErased": "모두 삭제했어요. 사진과 판정 결과가 지워졌어요.",
+    "guestDataErased": "완료했어요. 이 브라우저에 저장된 데이터가 남아 있지 않아요.",
+    "historyRevoked": "기록을 끄고 데이터를 삭제했어요.",
+    "historyKept": "기록은 계속 켜져 있어요.",
+    "historyEnabled": "기록이 켜졌어요. 앞으로 확인하는 사진이 여기에 저장돼요."
+  }
+}

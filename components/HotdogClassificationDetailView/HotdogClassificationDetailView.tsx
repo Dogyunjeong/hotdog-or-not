@@ -1,14 +1,13 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import type { SavedHotdogClassificationRecord } from '@/hooks/useHotdogClassificationHistory';
 
 import HotdogClassificationDetails from '@/components/HotdogClassificationDetails/HotdogClassificationDetails';
 import HotdogClassificationPhoto from '@/components/HotdogClassificationHistory/HotdogClassificationPhoto';
 import HotdogClassificationVerdictBadge from '@/components/HotdogClassificationHistory/HotdogClassificationVerdictBadge';
-import {
-  formatHotdogClassificationCreatedAt,
-  getHotdogClassificationDetailTitle,
-} from '@/components/HotdogClassificationHistory/hotdogClassificationLabel';
+import { useHotdogClassificationLabel } from '@/components/HotdogClassificationHistory/hotdogClassificationLabel';
 import Button from '@/components/primitives/Button';
 
 /** Only one detail view is shown at a time (panel or drawer), so one id names it. */
@@ -25,6 +24,9 @@ const HotdogClassificationDetailView = ({
   hotdogClassificationRecord,
   onDeletionRequest,
 }: HotdogClassificationDetailViewProps) => {
+  const t = useTranslations('detailView');
+  const { formatHotdogClassificationCreatedAt, getHotdogClassificationDetailTitle } =
+    useHotdogClassificationLabel();
   const { id, isHotdog, reason, originalImageUrl, createdAt, details } = hotdogClassificationRecord;
 
   return (
@@ -32,7 +34,7 @@ const HotdogClassificationDetailView = ({
       <HotdogClassificationPhoto
         imageUrl={originalImageUrl}
         size="hero"
-        photoDescription={`Your photo from ${formatHotdogClassificationCreatedAt(createdAt)}`}
+        photoDescription={t('photoAlt', { date: formatHotdogClassificationCreatedAt(createdAt) })}
       />
       <div className="flex flex-col gap-2">
         <h2
@@ -50,7 +52,7 @@ const HotdogClassificationDetailView = ({
       </div>
       <HotdogClassificationDetails details={details} />
       <Button variant="secondary" onClick={() => onDeletionRequest(id)} className="self-start">
-        Delete this photo
+        {t('deleteButton')}
       </Button>
     </div>
   );

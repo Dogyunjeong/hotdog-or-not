@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
@@ -10,8 +11,6 @@ import {
 } from '@/components/CookieConsent/historyCookieConsent';
 import { visitorSessionController } from '@/controllers/apiControllers';
 import type { HistoryConsentStatus } from '@/hooks/useVisitorPrivacy';
-
-const HISTORY_ENABLED_NOTICE = 'History is on. New checks will be saved here.';
 
 /** With history consent, the API starts the session and sets its cookie. */
 const startHistorySession = async (): Promise<boolean> => {
@@ -40,6 +39,7 @@ const discardStaleHistorySession = (isHistorySessionStarted: boolean) => {
  * (`isHistoryRevokePending`); until then the status stays `enabled`.
  */
 export const useHistoryConsent = ({ showNotice }: { showNotice: (message: string) => void }) => {
+  const t = useTranslations('privacy.notices');
   const [historyConsentStatus, setHistoryConsentStatus] =
     useState<HistoryConsentStatus>('undecided');
   const [isEnableHistoryFailed, setIsEnableHistoryFailed] = useState(false);
@@ -93,10 +93,10 @@ export const useHistoryConsent = ({ showNotice }: { showNotice: (message: string
       setHistoryConsentStatus('enabled');
 
       if (isEnabledNoticeShown) {
-        showNotice(HISTORY_ENABLED_NOTICE);
+        showNotice(t('historyEnabled'));
       }
     },
-    [showNotice],
+    [showNotice, t],
   );
 
   const disableHistory = () => {

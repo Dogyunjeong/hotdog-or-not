@@ -1,20 +1,26 @@
 import type { HotdogTypes } from '@/shared/types';
+import { useTranslations } from 'next-intl';
 
 interface HotdogVerdictProps {
   hotdogClassificationRecord: HotdogTypes.HotdogClassificationRecord;
 }
 
 const HotdogVerdictTitle = ({ isHotdog }: { isHotdog: boolean }) => {
+  const t = useTranslations('classifier.verdict');
+
   if (isHotdog) {
     return (
       <p className="text-2xl font-bold">
-        <span aria-hidden>🌭 </span>Hotdog!
+        <span aria-hidden>🌭 </span>
+        {t('hotdog')}
       </p>
     );
   }
   return (
     <p className="text-2xl font-bold">
-      Not hotdog<span className="sr-only">.</span>
+      {t.rich('notHotdog', {
+        srOnly: (punctuation) => <span className="sr-only">{punctuation}</span>,
+      })}
     </p>
   );
 };

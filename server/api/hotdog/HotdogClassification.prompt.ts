@@ -12,7 +12,7 @@ export const HOTDOG_TASTINESS_ASPECT_LIST = [
   'presentation',
 ] as const satisfies readonly HotdogTypes.HotdogTastinessAspect[];
 
-export const HOTDOG_CLASSIFICATION_INSTRUCTIONS = `You are the judge of a "Hotdog or Not Hotdog" app.
+const HOTDOG_CLASSIFICATION_BASE_INSTRUCTIONS = `You are the judge of a "Hotdog or Not Hotdog" app.
 Look at the image and fill in every field of the response.
 
 ## Verdict
@@ -38,6 +38,22 @@ Everything else is not a hotdog, including a sausage without a bun or a bun with
 
 All nutrition values: caloriesKcal in kcal, proteinG / fatG / carbsG in grams, sodiumMg in milligrams.
 Keep every text short, plain, and kind. Never comment on people's looks or identity, or on where the photo was taken.`;
+
+const OUTPUT_LANGUAGE_NAME: Record<HotdogTypes.HotdogClassificationLocale, string> = {
+  en: 'English',
+  ko: 'Korean',
+};
+
+/** Only the prose changes language; JSON keys and enum values (kind, aspect) stay English. */
+export const createHotdogClassificationInstructions = (
+  locale: HotdogTypes.HotdogClassificationLocale,
+) => {
+  return `${HOTDOG_CLASSIFICATION_BASE_INSTRUCTIONS}
+
+## Language
+Write reason and every free-text field (style and subject names and descriptions, headline, comments, ingredient names, origin placeName and note, verdictLine) in ${OUTPUT_LANGUAGE_NAME[locale]}.
+Keep JSON keys and enum values (kind, aspect) exactly as specified, in English.`;
+};
 
 const hotdogNutritionSchema = z.object({
   caloriesKcal: z.number(),

@@ -1,9 +1,6 @@
 import type { HotdogTypes } from '@/shared/types';
 
-import {
-  formatHotdogScore,
-  formatHotdogScoreForScreenReader,
-} from '@/components/HotdogClassificationDetails/detailsFormat';
+import HotdogScoreText from '@/components/HotdogClassificationDetails/HotdogScoreText';
 
 interface HotdogClassificationHistoryItemTitleProps {
   hotdogClassificationRecord: HotdogTypes.HotdogClassificationRecord;
@@ -21,11 +18,7 @@ const HotdogClassificationHistoryItemTitle = ({
     case 'hotdog':
       return (
         <>
-          {details.hotdogStyle.name} ·{' '}
-          <span aria-hidden>{formatHotdogScore(details.tastiness.score)}</span>
-          <span className="sr-only">
-            {formatHotdogScoreForScreenReader(details.tastiness.score)}
-          </span>
+          {details.hotdogStyle.name} · <HotdogScoreText score={details.tastiness.score} />
         </>
       );
     case 'notHotdog':

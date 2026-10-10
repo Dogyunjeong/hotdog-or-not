@@ -16,10 +16,6 @@ import DataDeletionAuditService, {
   runDataDeletionStep,
 } from './DataDeletionAudit.service';
 
-/** One answer for guest, unknown, malformed and "not yours", so other visitors' ids never leak. */
-const HOTDOG_CLASSIFICATION_NOT_FOUND_ERROR_MESSAGE =
-  "We couldn't find that photo. It may already be deleted.";
-
 /** Deletes one saved classification: its images first, then its row (audited). */
 class HotdogClassificationDeletionService {
   private _supabaseClient: SupabaseClient<Database>;
@@ -38,11 +34,12 @@ class HotdogClassificationDeletionService {
     this._dataDeletionAuditService = new DataDeletionAuditService({ supabaseClient });
   }
 
+  /** One answer for guest, unknown, malformed and "not yours", so other visitors' ids never leak. */
   private _createNotFoundError = () => {
-    return new ExpectedServerError(
-      HOTDOG_CLASSIFICATION_NOT_FOUND_ERROR_MESSAGE,
-      HTTP_STATUS.NOT_FOUND,
-    );
+    return new ExpectedServerError({
+      errorCode: 'CLASSIFICATION_NOT_FOUND',
+      httpStatusCode: HTTP_STATUS.NOT_FOUND,
+    });
   };
 
   private _findOwnedHotdogClassificationRow = async ({
