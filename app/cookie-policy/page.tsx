@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const COOKIE_DESCRIPTION_LIST = [
-  'seamflow_visitor_session — keeps your history in this browser. Essential. Lasts 1 year.',
+  'hotdog_or_not_visitor_session — keeps your history in this browser. Essential. Lasts 1 year.',
   "cc_cookie — remembers that you've seen our cookie notice. Essential. Lasts about 6 months.",
   "We don't use cookies for tracking or advertising.",
 ];

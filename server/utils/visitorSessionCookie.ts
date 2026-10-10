@@ -2,7 +2,7 @@ import 'server-only';
 
 import { isProductionRuntime } from '@/server/configs/app.config';
 
-export const VISITOR_SESSION_COOKIE_NAME = 'seamflow_visitor_session';
+export const VISITOR_SESSION_COOKIE_NAME = 'hotdog_or_not_visitor_session';
 
 const VISITOR_SESSION_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
