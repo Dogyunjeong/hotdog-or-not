@@ -59,9 +59,14 @@ Domain and concern focused. Focus on modularizing.
   - `[Domain].handler.ts` — `(request: Request) => Promise<Response>`; parse input, call services, `handleError`
   - `[Domain/Concern].service.ts` — business logic, external calls (OpenAI, Supabase)
     - every concern is a service, e.g. `UserSignUp.service.ts`, `UserSSO.service.ts`
-    - higher level services can compose concern services: `*.2nd.service.ts`, `*.3rd.service.ts`
   - `[Domain].prompt.ts` — LLM model, instructions, and output schema for that domain
-- External clients are injected into handlers/services (constructor) so tests can pass fakes
+- External systems are reached through clients, not extra service layers:
+  - `src/openai/getOpenAIClient.ts` — OpenAI SDK client
+  - `src/supabase/getSupabaseClient.ts` — Supabase SDK client (service role)
+  - `src/supabase/SupabaseStorage.client.ts` — `SupabaseStorageClient` (upload, ...) + `STORAGE_BUCKET` ids
+  - Extend these clients with generic operations; keep domain rules (paths, validation) in services
+- No `*.2nd.service.ts` layering — one service per domain concern, composing clients directly
+- Clients are injected into handlers/services (constructor) so tests can pass fakes (see `test/helpers`)
 - Throw `ExpectedServerError` for errors the user should see (validation, not found) with a user-friendly message. Anything else becomes a 500 with a generic message and is logged.
 - Map DB rows (snake_case) to domain types (camelCase) inside the service.
 
@@ -78,6 +83,7 @@ Next.js 16 App Router. Read `node_modules/next/dist/docs/` before using a Next.j
 
 - `config.toml` — local Supabase CLI config
 - `migrations/` — timestamped SQL migrations. Enable RLS on every table.
+- Storage buckets are created in migrations (`insert into storage.buckets ...`), private by default; only the API (service role) accesses them
 
 ## `./plans`
 

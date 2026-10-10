@@ -1,14 +1,11 @@
 import { HotdogClassificationHandler } from '@seamflow/api';
 import { HotdogClassificationController } from '@seamflow/shared-controllers';
-import type OpenAI from 'openai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const TEST_BASE_URL = 'http://localhost';
+import { createFakeOpenAIClient } from '../../helpers/createFakeOpenAIClient.ts';
+import { createFakeSupabaseStorageClient } from '../../helpers/createFakeSupabaseStorageClient.ts';
 
-const createFakeOpenAIClient = (outputParsed: unknown) => {
-  const parse = vi.fn().mockResolvedValue({ id: 'resp_test', output_parsed: outputParsed });
-  return { responses: { parse } } as unknown as OpenAI;
-};
+const TEST_BASE_URL = 'http://localhost';
 
 /**
  * Routes controller requests straight into the handler, the same way
@@ -31,26 +28,26 @@ describe('POST /api/hotdog-classifications', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
-  it('classifies an uploaded image', async () => {
+  it('stores and classifies an uploaded image', async () => {
     const hotdogClassification = { isHotdog: true, reason: 'Classic ballpark dog.' };
-    stubFetchWithHandler(
-      new HotdogClassificationHandler({
-        openAIClient: createFakeOpenAIClient(hotdogClassification),
-      }),
-    );
+    const { openAIClient } = createFakeOpenAIClient({ outputParsed: hotdogClassification });
+    const { supabaseStorageClient, upload } = createFakeSupabaseStorageClient();
+    stubFetchWithHandler(new HotdogClassificationHandler({ openAIClient, supabaseStorageClient }));
 
     const imageFile = new Blob([new Uint8Array(16)], { type: 'image/jpeg' });
     await expect(hotdogClassificationController.classifyImage({ imageFile })).resolves.toEqual(
       hotdogClassification,
     );
+    expect(upload).toHaveBeenCalledOnce();
   });
 
   it('returns 400 with a friendly message for unsupported files', async () => {
-    stubFetchWithHandler(
-      new HotdogClassificationHandler({ openAIClient: createFakeOpenAIClient(null) }),
-    );
+    const { openAIClient } = createFakeOpenAIClient();
+    const { supabaseStorageClient } = createFakeSupabaseStorageClient();
+    stubFetchWithHandler(new HotdogClassificationHandler({ openAIClient, supabaseStorageClient }));
 
     const textFile = new Blob(['not an image'], { type: 'text/plain' });
     await expect(
@@ -62,9 +59,7 @@ describe('POST /api/hotdog-classifications', () => {
   });
 
   it('returns 400 when the request has no image', async () => {
-    const hotdogClassificationHandler = new HotdogClassificationHandler({
-      openAIClient: createFakeOpenAIClient(null),
-    });
+    const hotdogClassificationHandler = new HotdogClassificationHandler();
 
     const response = await hotdogClassificationHandler.classifyImage(
       new Request(`${TEST_BASE_URL}/api/hotdog-classifications`, { method: 'POST' }),
@@ -74,11 +69,12 @@ describe('POST /api/hotdog-classifications', () => {
   });
 
   it('hides unexpected failures behind a friendly 500', async () => {
-    const failingOpenAIClient = {
-      responses: { parse: vi.fn().mockRejectedValue(new Error('upstream down')) },
-    } as unknown as OpenAI;
+    const { openAIClient } = createFakeOpenAIClient();
+    const { supabaseStorageClient } = createFakeSupabaseStorageClient({
+      uploadError: new Error('storage down'),
+    });
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    stubFetchWithHandler(new HotdogClassificationHandler({ openAIClient: failingOpenAIClient }));
+    stubFetchWithHandler(new HotdogClassificationHandler({ openAIClient, supabaseStorageClient }));
 
     const imageFile = new Blob([new Uint8Array(16)], { type: 'image/png' });
     await expect(hotdogClassificationController.classifyImage({ imageFile })).rejects.toMatchObject(

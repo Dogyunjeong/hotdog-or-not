@@ -2,7 +2,7 @@ import { HotdogTypes } from '@seamflow/shared-types';
 
 const HOTDOG_IMAGE_MAX_MEGABYTE_SIZE = HotdogTypes.HOTDOG_IMAGE_MAX_BYTE_SIZE / (1024 * 1024);
 
-const isHotdogImageMediaType = (
+export const isHotdogImageMediaType = (
   mediaType: string,
 ): mediaType is HotdogTypes.HotdogImageMediaType => {
   return (HotdogTypes.HOTDOG_IMAGE_MEDIA_TYPE_LIST as readonly string[]).includes(mediaType);

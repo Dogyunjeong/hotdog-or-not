@@ -1,1 +1,4 @@
-export { getHotdogImageValidationErrorMessage } from './getHotdogImageValidationErrorMessage.ts';
+export {
+  getHotdogImageValidationErrorMessage,
+  isHotdogImageMediaType,
+} from './getHotdogImageValidationErrorMessage.ts';

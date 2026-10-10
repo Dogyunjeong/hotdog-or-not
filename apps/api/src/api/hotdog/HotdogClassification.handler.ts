@@ -3,20 +3,30 @@ import { ExpectedServerError } from '@seamflow/shared-utils/error';
 import type OpenAI from 'openai';
 
 import { getOpenAIClient } from '../../openai/getOpenAIClient.ts';
+import {
+  getSupabaseStorageClient,
+  type SupabaseStorageClient,
+} from '../../supabase/SupabaseStorage.client.ts';
 import { handleError } from '../../utils/handleError.ts';
 import HotdogClassificationService from './HotdogClassification.service.ts';
 
 class HotdogClassificationHandler {
   private _openAIClient?: OpenAI;
+  private _supabaseStorageClient?: SupabaseStorageClient;
 
-  /** `openAIClient` is injectable for tests; production resolves it lazily from env. */
-  constructor({ openAIClient }: { openAIClient?: OpenAI } = {}) {
+  /** External clients are injectable for tests; production resolves them lazily from env. */
+  constructor({
+    openAIClient,
+    supabaseStorageClient,
+  }: { openAIClient?: OpenAI; supabaseStorageClient?: SupabaseStorageClient } = {}) {
     this._openAIClient = openAIClient;
+    this._supabaseStorageClient = supabaseStorageClient;
   }
 
   private _getDependencies = () => {
     const hotdogClassificationService = new HotdogClassificationService({
       openAIClient: this._openAIClient || getOpenAIClient(),
+      supabaseStorageClient: this._supabaseStorageClient || getSupabaseStorageClient(),
     });
     return { hotdogClassificationService };
   };
@@ -36,7 +46,9 @@ class HotdogClassificationHandler {
     try {
       const imageFile = await this._getImageFile(request);
       const { hotdogClassificationService } = this._getDependencies();
-      const hotdogClassification = await hotdogClassificationService.classifyImage({ imageFile });
+      const hotdogClassification = await hotdogClassificationService.classifyImage({
+        imageFile,
+      });
       return Response.json(hotdogClassification);
     } catch (error) {
       return handleError({

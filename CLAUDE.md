@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Seamflow — "Hotdog or Not Hotdog": upload an image, an OpenAI vision model says whether it's a hotdog. Next.js 16 (App Router) + API route handlers, Supabase (Postgres), deployed as one Vercel project. Yarn 4 workspaces monorepo.
+Seamflow — "Hotdog or Not Hotdog": upload an image, it's stored in Supabase Storage and an OpenAI vision model says whether it's a hotdog. Next.js 16 (App Router) + API route handlers, Supabase (Postgres), deployed as one Vercel project. Yarn 4 workspaces monorepo.
 
 ## Critical Rules
 
@@ -35,7 +35,8 @@ Seamflow — "Hotdog or Not Hotdog": upload an image, an OpenAI vision model say
 ```bash
 nvm use                 # Node 24 (.nvmrc)
 yarn install
-cp frontend/web/.env.example frontend/web/.env.local   # set OPENAI_API_KEY
+yarn db:start           # local Supabase (Docker); applies migrations, prints keys
+cp frontend/web/.env.example frontend/web/.env.local   # set OPENAI_API_KEY + Supabase keys
 
 yarn dev                # http://localhost:3000 (web + /api)
 yarn typecheck          # all workspaces
@@ -43,8 +44,7 @@ yarn lint               # eslint (eslint-config-next)
 yarn test               # vitest
 yarn build              # next build
 
-# Supabase (not used by the MVP yet)
-yarn db:start           # local Supabase (Docker); prints the service role key
+yarn db:stop            # stop local Supabase
 yarn db:reset           # apply supabase/migrations to local DB
 yarn db:types           # regenerate packages/shared-types/src/database/Database.type.ts
 yarn db:push            # push migrations to linked remote project (`yarn supabase link` first)
@@ -58,14 +58,14 @@ yarn db:push            # push migrations to linked remote project (`yarn supaba
 │   ├── shared-utils          # FetchRequest, ExpectedServerError, domain validators (client + server)
 │   └── shared-controllers    # API client controllers (isomorphic)
 ├── apps/
-│   └── api                   # Server-only: src/api/[domain]/[Domain].handler|service|prompt.ts
+│   └── api                   # Server-only: src/api/[domain]/[Domain].handler|service|prompt.ts, src/supabase + src/openai clients
 ├── frontend/
 │   └── web                   # Next.js App Router; app/api/**/route.ts are thin adapters to apps/api handlers
-├── supabase/                 # config.toml + SQL migrations
+├── supabase/                 # config.toml + SQL migrations (tables, storage buckets)
 └── test/                     # API tests
 ```
 
-Request flow: `component → hook → shared-controllers → app/api/**/route.ts → apps/api handler → service → OpenAI / Supabase`
+Request flow: `component → hook → shared-controllers → app/api/**/route.ts → apps/api handler → service → clients (OpenAI, SupabaseStorageClient)`
 
 **Tech stack**: Node 24, TypeScript, Yarn 4 | Next.js 16, React 19, Tailwind v4 | OpenAI (Responses API, structured outputs via zod) | Supabase | Vitest | Vercel
 
@@ -81,9 +81,9 @@ Vercel:
 
 1. Import the repo, set **Root Directory** to `frontend/web` (framework: Next.js, auto-detected)
 2. Node.js version: 24.x
-3. Env vars: `OPENAI_API_KEY`, `ENABLE_EXPERIMENTAL_COREPACK=1` (so Vercel uses Yarn 4 from `packageManager`). Add `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` once a feature uses the DB.
+3. Env vars: `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ENABLE_EXPERIMENTAL_COREPACK=1` (so Vercel uses Yarn 4 from `packageManager`)
 
-Supabase (once a feature needs the DB):
+Supabase (deploy before the app — migrations create the `hotdog-images` bucket):
 
 1. Create a project at supabase.com
 2. `yarn supabase login && yarn supabase link --project-ref <ref>`
