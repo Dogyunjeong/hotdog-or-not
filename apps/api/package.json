@@ -13,6 +13,7 @@
     "@seamflow/shared-types": "workspace:^",
     "@seamflow/shared-utils": "workspace:^",
     "@supabase/supabase-js": "^2.75.0",
-    "hono": "^4.9.0"
+    "openai": "^7.30.1",
+    "zod": "^4.0.0"
   }
 }

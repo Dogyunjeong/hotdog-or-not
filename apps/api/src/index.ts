@@ -1,1 +1,1 @@
-export { default as createApiApp } from './createApiApp.ts';
+export { default as HotdogClassificationHandler } from './api/hotdog/HotdogClassification.handler.ts';

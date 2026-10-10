@@ -2,18 +2,20 @@
 
 ## local environment
 
-- Supabase runs locally in Docker via the Supabase CLI (`yarn db:start`)
 - The web app (including `/api`) runs locally with `yarn dev`
+- Supabase runs locally in Docker via the Supabase CLI (`yarn db:start`)
 
 ## Environment Configuration
 
 ### **CRITICAL RULE: API Environment Variables**
 
 - **Types are defined in `@seamflow/shared-types` (`SharedTypes.SeamflowEnvironment`)** — add new vars there first
-- **Read env only through `getSeamflowEnvironment()` in `apps/api/src/configs/app.config.ts`** — never `process.env` directly
-- Local: `frontend/web/.env` (see `.env.example`). Vercel: project env vars per environment.
+- **Read env only through `getEnvironmentVariable()` in `apps/api/src/configs/app.config.ts`** — never `process.env` directly
+- Resolve env lazily inside client getters (`getOpenAIClient`, `getSupabaseClient`) so `next build` needs no secrets
+- Local: `frontend/web/.env.local` (see `.env.example`). Vercel: project env vars per environment.
 
 ```bash
+OPENAI_API_KEY=...
 SUPABASE_URL=http://127.0.0.1:54321
 SUPABASE_SERVICE_ROLE_KEY=...
 ```
@@ -46,30 +48,31 @@ Packages ship TypeScript source (`exports` → `./src/*.ts`); Vite bundles them.
 
 ## `./apps/api` (Backend)
 
-A Hono app (`createApiApp`) mounted at `/api`. It runs inside the web app's `/api/*` resource route,
-so it deploys as part of the same Vercel function. No separate server.
+Server-only domain code. Next.js route handlers in `frontend/web/app/api/**/route.ts` are thin adapters:
+they instantiate a handler and forward the Web `Request`. No framework code lives in `apps/api`.
 
 ### Architecture
 
 Domain and concern focused. Focus on modularizing.
 
 - `./apps/api/src/api/[domain]`
-  - `[Domain].routes.ts` — route table only
-  - `[Domain].handler.ts` — request parsing, response shaping, `handleError`
-  - `[Domain/Concern].service.ts` — business logic and Supabase queries
+  - `[Domain].handler.ts` — `(request: Request) => Promise<Response>`; parse input, call services, `handleError`
+  - `[Domain/Concern].service.ts` — business logic, external calls (OpenAI, Supabase)
     - every concern is a service, e.g. `UserSignUp.service.ts`, `UserSSO.service.ts`
     - higher level services can compose concern services: `*.2nd.service.ts`, `*.3rd.service.ts`
-- Register new domain routes in `src/createApiApp.ts`
-- Throw `ExpectedServerError` for errors the user should see (validation, not found) with a user-friendly message. Anything else becomes a 500.
+  - `[Domain].prompt.ts` — LLM model, instructions, and output schema for that domain
+- External clients are injected into handlers/services (constructor) so tests can pass fakes
+- Throw `ExpectedServerError` for errors the user should see (validation, not found) with a user-friendly message. Anything else becomes a 500 with a generic message and is logged.
 - Map DB rows (snake_case) to domain types (camelCase) inside the service.
 
 ## `./frontend/web`
 
-React Router v7 framework mode with SSR and the Vercel preset.
+Next.js 16 App Router. Read `node_modules/next/dist/docs/` before using a Next.js API.
 
 - all frontend code must meet type definitions in `./packages/shared-types`
-- communicate with the API through `./packages/shared-controllers` (instances in `app/controllers/apiControllers.ts`)
-- components in `app/components/[Domain]/`, routes in `app/routes/`, registered in `app/routes.ts`
+- communicate with the API through `./packages/shared-controllers` (instances in `controllers/apiControllers.ts`)
+- `app/` routes and route handlers, `components/[Domain]/` UI, `hooks/` stateful logic split from UI
+- Validation shared with the API lives in `shared-utils` so the client gives instant feedback with the same rules
 
 ## `./supabase`
 
@@ -83,5 +86,5 @@ Build plans for the project. **always refer to this folder before starting imple
 ## test
 
 - unit test: next to the target file, `*.test.ts`
-- API tests: `./test/api-tests/[domain]/` — call the API through shared controllers with `createApiApp({ supabaseClient })` and a fake client (see `test/helpers`)
+- API tests: `./test/api-tests/[domain]/` — call the handler through shared controllers by stubbing `fetch`, with fake external clients (see `test/api-tests/hotdog`)
 - **IMPORTANT**: Whenever a backend feature is added, corresponding API tests MUST be added

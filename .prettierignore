@@ -4,3 +4,4 @@ dist
 .react-router
 .yarn
 yarn.lock
+guidelines/coding_style_guideline.md

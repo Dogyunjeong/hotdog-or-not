@@ -26,7 +26,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --local > packages/shared-types/src/database/Database.type.ts"
+    "db:types": "supabase gen types typescript --local > packages/shared-types/src/database/Database.type.ts",
+    "lint": "yarn workspace @seamflow/web lint"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

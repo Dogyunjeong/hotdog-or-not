@@ -1,1 +1,1 @@
-export { default as NoteController } from './note/Note.controller.ts';
+export { default as HotdogClassificationController } from './hotdog/HotdogClassification.controller.ts';

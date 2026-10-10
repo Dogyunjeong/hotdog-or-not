@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@seamflow/shared-types';
 
-import { getSeamflowEnvironment } from '../configs/app.config.ts';
+import { getEnvironmentVariable } from '../configs/app.config.ts';
 
 let supabaseClient: SupabaseClient<Database> | undefined;
 
@@ -13,9 +13,10 @@ export const getSupabaseClient = (): SupabaseClient<Database> => {
     return supabaseClient;
   }
 
-  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = getSeamflowEnvironment();
-  supabaseClient = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  supabaseClient = createClient<Database>(
+    getEnvironmentVariable('SUPABASE_URL'),
+    getEnvironmentVariable('SUPABASE_SERVICE_ROLE_KEY'),
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
   return supabaseClient;
 };

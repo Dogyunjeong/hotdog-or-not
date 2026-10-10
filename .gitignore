@@ -17,7 +17,9 @@ build/
 node_modules
 dist/
 logs/
-.react-router/
+.next/
+next-env.d.ts
+*.tsbuildinfo
 .vercel/
 
 # supabase local

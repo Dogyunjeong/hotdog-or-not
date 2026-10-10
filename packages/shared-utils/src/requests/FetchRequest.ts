@@ -43,14 +43,29 @@ class FetchRequest implements IRequest {
     return `${this._baseUrl}/${path}?${queryString}`;
   };
 
-  private _buildHeaders = (hasBody: boolean, headers: RequestConfig['headers'] = {}) => {
+  private _buildHeaders = (hasJsonBody: boolean, headers: RequestConfig['headers'] = {}) => {
     const authorizationHeader: Record<string, string> = this._accessToken
       ? { Authorization: `Bearer ${this._accessToken}` }
       : {};
-    const contentTypeHeader: Record<string, string> = hasBody
+    const contentTypeHeader: Record<string, string> = hasJsonBody
       ? { 'Content-Type': 'application/json' }
       : {};
     return { ...contentTypeHeader, ...authorizationHeader, ...headers };
+  };
+
+  /**
+   * FormData is sent as-is so `fetch` sets the multipart boundary itself.
+   * Everything else is JSON.
+   */
+  private _buildBody = (body: unknown): BodyInit | undefined => {
+    if (body === undefined) {
+      return undefined;
+    }
+
+    if (body instanceof FormData) {
+      return body;
+    }
+    return JSON.stringify(body);
   };
 
   private _makeRequest = async <T>(
@@ -59,11 +74,11 @@ class FetchRequest implements IRequest {
     body?: unknown,
     config: RequestConfig = {},
   ): Promise<{ data: T }> => {
-    const hasBody = body !== undefined;
+    const hasJsonBody = body !== undefined && !(body instanceof FormData);
     const response = await fetch(this._buildUrl(url, config.params), {
       method,
-      headers: this._buildHeaders(hasBody, config.headers),
-      body: hasBody ? JSON.stringify(body) : undefined,
+      headers: this._buildHeaders(hasJsonBody, config.headers),
+      body: this._buildBody(body),
     });
     const responseData = await response.json().catch(() => undefined);
 
