@@ -31,8 +31,9 @@ const OPEN_GRAPH_LOCALE: Record<AppLocale, string> = {
   ko: 'ko_KR',
 };
 
-// Icons and the share image come from file conventions in `app/` (favicon.ico, icon.svg,
-// apple-icon.png, opengraph-image.png) and the web app manifest from `app/manifest.ts`.
+// Icons come from file conventions in `app/` (favicon.ico, icon.svg, apple-icon.png); the share
+// image sits next to this layout (`opengraph-image.png`) so this segment's openGraph/twitter fields
+// don't hide it; the web app manifest comes from `app/manifest.ts`.
 export const generateMetadata = async ({ params }: LayoutProps<'/[locale]'>): Promise<Metadata> => {
   const { locale } = await params;
   const metadataLocale = hasLocale(routing.locales, locale) ? locale : routing.defaultLocale;
